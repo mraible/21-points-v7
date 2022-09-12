@@ -1,0 +1,37 @@
+apply plugin: "com.heroku.sdk.heroku-gradle"
+
+heroku {
+    appName = "health-by-pints"
+    buildpacks = ["heroku/jvm"]
+}
+
+// force dependency version as used bonsai add-on as of now only supports 7.10.x
+// https://github.com/jhipster/generator-jhipster/issues/18650
+def bonsaiElasticSearchVersion = "7.10.2"
+if (System.getenv("DYNO") != null) {
+    configurations {
+        all {
+            resolutionStrategy {
+                force "org.elasticsearch.client:elasticsearch-rest-client:${bonsaiElasticSearchVersion}"
+                force "org.elasticsearch.client:elasticsearch-rest-high-level-client:${bonsaiElasticSearchVersion}"
+                force "org.elasticsearch:elasticsearch:${bonsaiElasticSearchVersion}"
+                force "org.elasticsearch.plugin:transport-netty4-client:${bonsaiElasticSearchVersion}"
+            }
+        }
+    }
+}
+
+// Task stage is used by Heroku, see also
+// https://devcenter.heroku.com/articles/deploying-gradle-apps-on-heroku
+// and GRADLE_TASK configuration variable.
+task stage(dependsOn: "bootJar") {
+}
+
+gradle.taskGraph.whenReady {taskGraph ->
+    taskGraph.afterTask() {task ->
+        if (task.getName().equals("stage") && System.getenv("DYNO") != null) {
+            delete "node_modules"
+            delete fileTree(dir: "build/libs", exclude: "*.jar")
+        }
+    }
+}
