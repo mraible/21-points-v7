@@ -84,6 +84,7 @@
     "packaging": "jar"
   },
   "dependencies": {
+    "@angular/cdk": "^14.2.6",
     "@angular/common": "14.2.0",
     "@angular/compiler": "14.2.0",
     "@angular/core": "14.2.0",
@@ -101,6 +102,7 @@
     "@popperjs/core": "2.11.6",
     "bootstrap": "5.2.0",
     "dayjs": "1.11.5",
+    "mdb-angular-ui-kit": "^3.0.0",
     "ngx-infinite-scroll": "14.0.0",
     "ngx-webstorage": "10.0.1",
     "rxjs": "7.5.6",

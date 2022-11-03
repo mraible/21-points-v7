@@ -6,7 +6,7 @@ eg $input-color: red;
 ****************************/
 // Override Bootstrap variables
 @import 'bootstrap-variables';
-// Import Bootstrap source files from node_modules
-@import '~bootstrap/scss/bootstrap';
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap');
+@import '~mdb-angular-ui-kit/assets/scss/mdb.scss';
 
 /* jhipster-needle-scss-add-vendor JHipster will add new css style */
