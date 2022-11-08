@@ -13,6 +13,7 @@ node {
         sh "chmod +x gradlew"
         sh "./gradlew clean --no-daemon"
     }
+
     stage('nohttp') {
         sh "./gradlew checkstyleNohttp --no-daemon"
     }
@@ -20,6 +21,7 @@ node {
     stage('npm install') {
         sh "./gradlew npm_install -PnodeInstall --no-daemon"
     }
+
     stage('backend tests') {
         try {
             sh "./gradlew test integrationTest -PnodeInstall --no-daemon"
@@ -40,6 +42,15 @@ node {
         }
     }
 
+    stage('cypress tests') {
+        sh '''./gradlew &
+        bootPid=$!
+        sleep 30s
+        npm run e2e
+        kill $bootPid
+        '''
+    }
+
     stage('packaging') {
         sh "./gradlew bootJar -x test -Pprod -PnodeInstall --no-daemon"
         archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
@@ -48,5 +59,4 @@ node {
     stage('deployment') {
         sh "./gradlew deployHeroku --no-daemon"
     }
-
 }
