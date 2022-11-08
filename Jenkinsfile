@@ -42,10 +42,10 @@ node {
         }
     }
 
-    stage('cypress tests') {
+    stage('e2e tests') {
         sh '''./gradlew &
         bootPid=$!
-        sleep 30s
+        sleep 30
         npm run e2e
         kill $bootPid
         '''
