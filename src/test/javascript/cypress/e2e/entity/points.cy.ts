@@ -118,7 +118,7 @@ describe('Points e2e test', () => {
         cy.get(entityEditButtonSelector).first().click();
         cy.getEntityCreateUpdateHeading('Points');
         cy.get(entityCreateSaveButtonSelector).should('exist');
-        cy.get(entityCreateCancelButtonSelector).click();
+        cy.get(entityCreateCancelButtonSelector).click({ force: true });
         cy.wait('@entitiesRequest').then(({ response }) => {
           expect(response.statusCode).to.equal(200);
         });
@@ -128,7 +128,7 @@ describe('Points e2e test', () => {
       it('edit button click should load edit Points page and save', () => {
         cy.get(entityEditButtonSelector).first().click();
         cy.getEntityCreateUpdateHeading('Points');
-        cy.get(entityCreateSaveButtonSelector).click();
+        cy.get(entityCreateSaveButtonSelector).click({ force: true });
         cy.wait('@entitiesRequest').then(({ response }) => {
           expect(response.statusCode).to.equal(200);
         });
