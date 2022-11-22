@@ -5,6 +5,18 @@ heroku {
     buildpacks = ["heroku/jvm"]
 }
 
+// force upgraded Elastic client to fix issue with Elastic Cloud
+def elasticSearchVersion = "8.5.1"
+if (System.getenv("DYNO") != null) {
+    configurations {
+        all {
+            resolutionStrategy {
+                force "co.elastic.clients:elasticsearch-java:${elasticSearchVersion}"
+            }
+        }
+    }
+}
+
 // Task stage is used by Heroku, see also
 // https://devcenter.heroku.com/articles/deploying-gradle-apps-on-heroku
 // and GRADLE_TASK configuration variable.
