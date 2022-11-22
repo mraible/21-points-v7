@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +21,7 @@ import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.elasticsearch.config.ElasticsearchConfigurationSupport;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchCustomConversions;
+import org.springframework.http.HttpHeaders;
 
 @Configuration
 public class ElasticsearchConfiguration extends ElasticsearchConfigurationSupport {
@@ -28,9 +31,16 @@ public class ElasticsearchConfiguration extends ElasticsearchConfigurationSuppor
 
     @Bean
     public ElasticsearchClient elasticsearchClient() {
-        RestClient httpClient = RestClient.builder(HttpHost.create(elasticSearchUris)).build();
+        RestClient httpClient = RestClient.builder(HttpHost.create(elasticSearchUris)).setDefaultHeaders(compatibilityHeaders()).build();
         ElasticsearchTransport transport = new RestClientTransport(httpClient, new JacksonJsonpMapper());
         return new ElasticsearchClient(transport);
+    }
+
+    private Header[] compatibilityHeaders() {
+        return new Header[] {
+            new BasicHeader(HttpHeaders.ACCEPT, "application/vnd.elasticsearch+json;compatible-with=7"),
+            new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/vnd.elasticsearch+json;compatible-with=7"),
+        };
     }
 
     @Bean
