@@ -1,10 +1,17 @@
 package org.jhipster.health.config;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -15,6 +22,16 @@ import org.springframework.data.elasticsearch.core.convert.ElasticsearchCustomCo
 
 @Configuration
 public class ElasticsearchConfiguration extends ElasticsearchConfigurationSupport {
+
+    @Value("${spring.elasticsearch.uris}")
+    private String elasticSearchUris;
+
+    @Bean
+    public ElasticsearchClient elasticsearchClient() {
+        RestClient httpClient = RestClient.builder(HttpHost.create(elasticSearchUris)).build();
+        ElasticsearchTransport transport = new RestClientTransport(httpClient, new JacksonJsonpMapper());
+        return new ElasticsearchClient(transport);
+    }
 
     @Bean
     @Override
