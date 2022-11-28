@@ -216,7 +216,7 @@ To achieve this, first build a docker image of your app by running:
 npm run java:docker
 ```
 
-Or build a arm64 docker image when using an arm64 processor os like MacOS with M1 processor family running:
+Or build an arm64 docker image when using an arm64 processor os like macOS with M1 processor family running:
 
 ```
 npm run java:docker:arm64
