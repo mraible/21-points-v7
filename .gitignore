@@ -92,6 +92,7 @@ out/
 # Package Files
 ######################
 *.jar
+!newrelic-agent.jar
 *.war
 *.ear
 *.db
