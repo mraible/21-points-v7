@@ -1,5 +1,6 @@
 import dayjs from 'dayjs/esm';
 import { IUser } from 'app/entities/user/user.model';
+import { IBloodPressure } from '../blood-pressure/blood-pressure.model';
 
 export interface IWeight {
   id: number;
@@ -9,3 +10,8 @@ export interface IWeight {
 }
 
 export type NewWeight = Omit<IWeight, 'id'> & { id: null };
+
+export interface IWeightByPeriod {
+  period: string;
+  weighIns: Array<IWeight>;
+}

@@ -2,12 +2,20 @@ package org.jhipster.health.web.rest;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
+import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -18,11 +26,13 @@ import org.jhipster.health.repository.search.WeightSearchRepository;
 import org.jhipster.health.security.AuthoritiesConstants;
 import org.jhipster.health.security.SecurityUtils;
 import org.jhipster.health.web.rest.errors.BadRequestAlertException;
+import org.jhipster.health.web.rest.vm.WeightByPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -188,10 +198,10 @@ public class WeightResource {
     ) {
         log.debug("REST request to get a page of Weights");
         Page<Weight> page;
-        if (eagerload) {
-            page = weightRepository.findAllWithEagerRelationships(pageable);
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            page = weightRepository.findAllByOrderByTimestampDesc(pageable);
         } else {
-            page = weightRepository.findAll(pageable);
+            page = weightRepository.findByUserIsCurrentUser(pageable);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -244,5 +254,55 @@ public class WeightResource {
         Page<Weight> page = weightSearchRepository.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /weight-by-days} : get all the weigh-ins for last x days.
+     *
+     * @param days the days to fetch the results for.
+     * @return the result of the search.
+     */
+    @GetMapping("/weight-by-days/{days}")
+    @Timed
+    public ResponseEntity<WeightByPeriod> getByDays(@PathVariable int days) {
+        ZonedDateTime rightNow = ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime daysAgo = rightNow.minusDays(days);
+
+        List<Weight> weighIns = weightRepository.findAllByTimestampBetweenOrderByTimestampDesc(daysAgo, rightNow);
+        WeightByPeriod response = new WeightByPeriod("Last " + days + " Days", filterByUser(weighIns));
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * {@code GET  /weight-by-month/:date} : get all the blood pressure readings for a particular month.
+     *
+     * @param date the month to fetch results for.
+     * @return the result of the search.
+     */
+    @GetMapping("/weight-by-month/{date}")
+    @Timed
+    public ResponseEntity<WeightByPeriod> getByMonth(@PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth date) {
+        LocalDate firstDay = date.atDay(1);
+        LocalDate lastDay = date.atEndOfMonth();
+
+        ZoneId timezone = ZoneId.of("Z");
+
+        List<Weight> weighIns = weightRepository.findAllByTimestampBetweenOrderByTimestampDesc(
+            firstDay.atStartOfDay(timezone),
+            lastDay.plusDays(1).atStartOfDay(timezone)
+        );
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
+        String yearAndMonth = fmt.format(firstDay);
+
+        WeightByPeriod response = new WeightByPeriod(yearAndMonth, filterByUser(weighIns));
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private List<Weight> filterByUser(List<Weight> readings) {
+        Stream<Weight> userReadings = readings
+            .stream()
+            .filter(bp -> bp.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(null)));
+        return userReadings.collect(Collectors.toList());
     }
 }

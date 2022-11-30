@@ -8,7 +8,7 @@ import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { SearchWithPagination } from 'app/core/request/request.model';
-import { IWeight, NewWeight } from '../weight.model';
+import { IWeight, IWeightByPeriod, NewWeight } from '../weight.model';
 
 export type PartialUpdateWeight = Partial<IWeight> & Pick<IWeight, 'id'>;
 
@@ -75,6 +75,14 @@ export class WeightService {
     return this.http
       .get<RestWeight[]>(this.resourceSearchUrl, { params: options, observe: 'response' })
       .pipe(map(res => this.convertResponseArrayFromServer(res)));
+  }
+
+  last30Days(): Observable<HttpResponse<IWeightByPeriod>> {
+    return this.http.get<IWeightByPeriod>('api/weight-by-days/30', { observe: 'response' });
+  }
+
+  byMonth(month: string): Observable<HttpResponse<IWeightByPeriod>> {
+    return this.http.get<IWeightByPeriod>(`api/weight-by-month/${month}`, { observe: 'response' });
   }
 
   getWeightIdentifier(weight: Pick<IWeight, 'id'>): number {
