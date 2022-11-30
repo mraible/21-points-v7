@@ -24,7 +24,7 @@ describe('Points e2e test', () => {
   });
 
   beforeEach(() => {
-    cy.intercept('GET', '/api/points+(?*|)').as('entitiesRequest');
+    cy.intercept('GET', '/api/points?size=*').as('entitiesRequest');
     cy.intercept('POST', '/api/points').as('postEntityRequest');
     cy.intercept('DELETE', '/api/points/*').as('deleteEntityRequest');
   });
@@ -47,7 +47,7 @@ describe('Points e2e test', () => {
       cy.task('table', response);
       cy.task('table', response.body);
       cy.task('log', `response body length: ${response.body.length}`);
-      if (response && response.body && response.body.length === 0) {
+      if (response.body && response.body.length === 0) {
         cy.get(entityTableSelector).should('not.exist');
       } else {
         cy.get(entityTableSelector).should('exist');
