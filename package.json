@@ -33,7 +33,7 @@
     "docker:app:up": "docker-compose -f src/main/docker/app.yml up -d",
     "docker:db:down": "docker-compose -f src/main/docker/postgresql.yml down -v",
     "docker:db:up": "docker-compose -f src/main/docker/postgresql.yml up -d",
-    "docker:elasticsearch:down": "docker-compose -f src/main/docker/elasticsearch.yml down -v",
+    "docker:elasticsearch:down": "docker-compose -f src/main/docker/elasticsearch.yml down -v --remove-orphans",
     "docker:elasticsearch:up": "docker-compose -f src/main/docker/elasticsearch.yml up -d",
     "docker:others:await": "echo \"Waiting for Elasticsearch to start\" && wait-on -t 180000 \"http-get://localhost:9200/_cluster/health?wait_for_status=green&timeout=60s\" && echo \"Elasticsearch started\"",
     "docker:others:down": "npm run docker:elasticsearch:down",
