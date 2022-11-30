@@ -16,12 +16,13 @@ h4 {
 
 /* Increase contrast of links to get 100% on Lighthouse Accessability Audit. Override this color if you want to change the link color, or use a Bootswatch theme */
 a {
-  color: #533f03;
   font-weight: bold;
+  text-decoration: none;
 }
 
 a:hover {
-  color: #533f03;
+  color: darken($link-color, 25%);
+  text-decoration: underline;
 }
 
 /* override hover color for dropdown-item forced by bootstrap to all a:not([href]):not([tabindex]) elements in _reboot.scss */
@@ -283,11 +284,31 @@ a {
   padding: 10px;
   padding-bottom: 0;
   text-align: center;
-  z-index: 2;
+  z-index: 3;
   font-size: 0.9em;
 
   p {
     margin-bottom: 7px;
+  }
+}
+
+.heart {
+  display: inline-block;
+  width: 347px;
+  height: 347px !important;
+  background: url('../images/21-points-logo.png') no-repeat center top;
+  background-size: contain;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+  only screen and (min--moz-device-pixel-ratio: 2),
+  only screen and (-o-min-device-pixel-ratio: 2/1),
+  only screen and (min-device-pixel-ratio: 2),
+  only screen and (min-resolution: 192dpi),
+  only screen and (min-resolution: 2dppx) {
+  .heart {
+    background: url('../images/21-points-logo2x.png') no-repeat center top;
+    background-size: contain;
   }
 }
 

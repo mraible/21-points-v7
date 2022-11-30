@@ -160,13 +160,12 @@ describe('Points e2e test', () => {
     });
 
     it('should create an instance of Points', () => {
+      cy.get(`[data-cy="date"]`).clear();
       cy.get(`[data-cy="date"]`).type('2022-11-07').blur().should('have.value', '2022-11-07');
 
-      cy.get(`[data-cy="exercise"]`).type('58383').should('have.value', '58383');
-
-      cy.get(`[data-cy="meals"]`).type('96341').should('have.value', '96341');
-
-      cy.get(`[data-cy="alcohol"]`).type('43411').should('have.value', '43411');
+      cy.get(`[data-cy="exercise"]`).should('be.checked');
+      cy.get(`[data-cy="meals"]`).should('be.checked');
+      cy.get(`[data-cy="alcohol"]`).should('be.checked');
 
       cy.get(`[data-cy="notes"]`).type('Response').should('have.value', 'Response');
 

@@ -9,7 +9,7 @@ import { DATE_FORMAT } from 'app/config/input.constants';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { SearchWithPagination } from 'app/core/request/request.model';
-import { IPoints, NewPoints } from '../points.model';
+import { IPoints, IPointsPerWeek, NewPoints } from '../points.model';
 
 export type PartialUpdatePoints = Partial<IPoints> & Pick<IPoints, 'id'>;
 
@@ -130,5 +130,25 @@ export class PointsService {
     return res.clone({
       body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
     });
+  }
+
+  thisWeek(): Observable<HttpResponse<IPointsPerWeek>> {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return this.http
+      .get<IPointsPerWeek>(`api/points-this-week?tz=${tz}`, { observe: 'response' })
+      .pipe(map(res => this.convertWeekResponseFromServer(res)));
+  }
+
+  protected convertWeekResponseFromServer(res: HttpResponse<IPointsPerWeek>): HttpResponse<IPointsPerWeek> {
+    return res.clone({
+      body: res.body ? this.convertWeekDateFromServer(res.body) : null,
+    });
+  }
+
+  protected convertWeekDateFromServer(pointsPerWeek: IPointsPerWeek): IPointsPerWeek {
+    return {
+      ...pointsPerWeek,
+      week: pointsPerWeek.week,
+    };
   }
 }

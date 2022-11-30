@@ -2,6 +2,7 @@ package org.jhipster.health.web.rest;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
+import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -13,11 +14,15 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.jhipster.health.domain.Preferences;
 import org.jhipster.health.repository.PreferencesRepository;
+import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.search.PreferencesSearchRepository;
+import org.jhipster.health.security.AuthoritiesConstants;
+import org.jhipster.health.security.SecurityUtils;
 import org.jhipster.health.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -43,9 +48,16 @@ public class PreferencesResource {
 
     private final PreferencesSearchRepository preferencesSearchRepository;
 
-    public PreferencesResource(PreferencesRepository preferencesRepository, PreferencesSearchRepository preferencesSearchRepository) {
+    private final UserRepository userRepository;
+
+    public PreferencesResource(
+        PreferencesRepository preferencesRepository,
+        PreferencesSearchRepository preferencesSearchRepository,
+        UserRepository userRepository
+    ) {
         this.preferencesRepository = preferencesRepository;
         this.preferencesSearchRepository = preferencesSearchRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -60,6 +72,11 @@ public class PreferencesResource {
         log.debug("REST request to save Preferences : {}", preferences);
         if (preferences.getId() != null) {
             throw new BadRequestAlertException("A new preferences cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
+            String username = SecurityUtils.getCurrentUserLogin().get();
+            preferences.setUser(userRepository.findOneByLogin(username).get());
         }
         Preferences result = preferencesRepository.save(preferences);
         preferencesSearchRepository.index(result);
@@ -214,5 +231,26 @@ public class PreferencesResource {
     public List<Preferences> searchPreferences(@RequestParam String query) {
         log.debug("REST request to search Preferences for query {}", query);
         return StreamSupport.stream(preferencesSearchRepository.search(query).spliterator(), false).collect(Collectors.toList());
+    }
+
+    /**
+     * {@code GET  /my-preferences : get the current user's preferences
+     *
+     * @return the preferences or default (weeklyGoal: 10) if none exist.
+     */
+    @GetMapping("/my-preferences")
+    @Timed
+    public ResponseEntity<Preferences> getUserPreferences() {
+        String username = SecurityUtils.getCurrentUserLogin().get();
+        log.debug("REST request to get Preferences : {}", username);
+        Optional<Preferences> preferences = preferencesRepository.findOneByUserLogin(username);
+
+        if (preferences.isPresent()) {
+            return new ResponseEntity<>(preferences.get(), HttpStatus.OK);
+        } else {
+            Preferences defaultPreferences = new Preferences();
+            defaultPreferences.setWeeklyGoal(10); // default
+            return new ResponseEntity<>(defaultPreferences, HttpStatus.OK);
+        }
     }
 }

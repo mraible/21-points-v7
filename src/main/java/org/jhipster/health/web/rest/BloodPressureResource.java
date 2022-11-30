@@ -2,19 +2,27 @@ package org.jhipster.health.web.rest;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
+import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.jhipster.health.domain.BloodPressure;
 import org.jhipster.health.repository.BloodPressureRepository;
+import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.search.BloodPressureSearchRepository;
+import org.jhipster.health.security.AuthoritiesConstants;
+import org.jhipster.health.security.SecurityUtils;
 import org.jhipster.health.web.rest.errors.BadRequestAlertException;
+import org.jhipster.health.web.rest.vm.BloodPressureByPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,12 +57,16 @@ public class BloodPressureResource {
 
     private final BloodPressureSearchRepository bloodPressureSearchRepository;
 
+    private final UserRepository userRepository;
+
     public BloodPressureResource(
         BloodPressureRepository bloodPressureRepository,
-        BloodPressureSearchRepository bloodPressureSearchRepository
+        BloodPressureSearchRepository bloodPressureSearchRepository,
+        UserRepository userRepository
     ) {
         this.bloodPressureRepository = bloodPressureRepository;
         this.bloodPressureSearchRepository = bloodPressureSearchRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -69,6 +81,11 @@ public class BloodPressureResource {
         log.debug("REST request to save BloodPressure : {}", bloodPressure);
         if (bloodPressure.getId() != null) {
             throw new BadRequestAlertException("A new bloodPressure cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
+            String username = SecurityUtils.getCurrentUserLogin().get();
+            bloodPressure.setUser(userRepository.findOneByLogin(username).get());
         }
         BloodPressure result = bloodPressureRepository.save(bloodPressure);
         bloodPressureSearchRepository.index(result);
@@ -239,5 +256,26 @@ public class BloodPressureResource {
         Page<BloodPressure> page = bloodPressureSearchRepository.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /bp-by-days/:days} : get all the blood pressure readings by last x days.
+     *
+     * @param days the number of days.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the {@link BloodPressureByPeriod}.
+     */
+    @RequestMapping(value = "/bp-by-days/{days}")
+    @Timed
+    public ResponseEntity<BloodPressureByPeriod> getByDays(@PathVariable int days) {
+        ZonedDateTime rightNow = ZonedDateTime.now();
+        ZonedDateTime daysAgo = rightNow.minusDays(days);
+
+        List<BloodPressure> readings = bloodPressureRepository.findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(
+            daysAgo,
+            rightNow,
+            SecurityUtils.getCurrentUserLogin().get()
+        );
+        BloodPressureByPeriod response = new BloodPressureByPeriod("Last " + days + " Days", readings);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

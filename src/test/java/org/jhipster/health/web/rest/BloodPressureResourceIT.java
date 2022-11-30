@@ -3,9 +3,11 @@ package org.jhipster.health.web.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.jhipster.health.web.rest.TestUtil.sameInstant;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.Instant;
@@ -23,7 +25,9 @@ import org.apache.commons.collections4.IterableUtils;
 import org.assertj.core.util.IterableUtil;
 import org.jhipster.health.IntegrationTest;
 import org.jhipster.health.domain.BloodPressure;
+import org.jhipster.health.domain.User;
 import org.jhipster.health.repository.BloodPressureRepository;
+import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.search.BloodPressureSearchRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +43,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -74,6 +79,9 @@ class BloodPressureResourceIT {
 
     @Autowired
     private BloodPressureSearchRepository bloodPressureSearchRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private EntityManager em;
@@ -564,5 +572,50 @@ class BloodPressureResourceIT {
             .andExpect(jsonPath("$.[*].timestamp").value(hasItem(sameInstant(DEFAULT_TIMESTAMP))))
             .andExpect(jsonPath("$.[*].systolic").value(hasItem(DEFAULT_SYSTOLIC)))
             .andExpect(jsonPath("$.[*].diastolic").value(hasItem(DEFAULT_DIASTOLIC)));
+    }
+
+    private void createBloodPressureByMonth(ZonedDateTime firstDate, ZonedDateTime firstDayOfLastMonth) {
+        User user = userRepository.findOneByLogin("user").get();
+
+        bloodPressure = new BloodPressure(firstDate, 120, 80, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDate.plusDays(10), 125, 75, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDate.plusDays(20), 100, 69, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+
+        // last month
+        bloodPressure = new BloodPressure(firstDayOfLastMonth, 130, 90, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(11), 135, 85, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(23), 130, 75, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+    }
+
+    @Test
+    @Transactional
+    public void getBloodPressureForLast30Days() throws Exception {
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime twentyNineDaysAgo = now.minusDays(29);
+        ZonedDateTime firstDayOfLastMonth = now.withDayOfMonth(1).minusMonths(1);
+        createBloodPressureByMonth(twentyNineDaysAgo, firstDayOfLastMonth);
+
+        // Get all the blood pressure readings
+        restBloodPressureMockMvc
+            .perform(get("/api/blood-pressures"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(6)));
+
+        // Get the blood pressure readings for the last 30 days
+        restBloodPressureMockMvc
+            .perform(get("/api/bp-by-days/{days}", 30))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.period").value("Last 30 Days"))
+            .andExpect(jsonPath("$.readings.[*].systolic").value(hasItem(120)))
+            .andExpect(jsonPath("$.readings.[*].diastolic").value(hasItem(69)));
     }
 }

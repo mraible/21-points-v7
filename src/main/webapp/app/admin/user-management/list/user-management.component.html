@@ -1,22 +1,27 @@
-<div>
-  <h2>
-    <span id="user-management-page-heading" jhiTranslate="userManagement.home.title" data-cy="userManagementPageHeading">Users</span>
-
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="loadAll()" [disabled]="isLoading">
-        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
-        <span jhiTranslate="userManagement.home.refreshListLabel">Refresh list</span>
-      </button>
-      <button class="btn btn-primary jh-create-entity" [routerLink]="['./new']">
-        <fa-icon icon="plus"></fa-icon> <span jhiTranslate="userManagement.home.createLabel">Create a new user</span>
-      </button>
-    </div>
-  </h2>
-
+<div class="row">
   <jhi-alert-error></jhi-alert-error>
-
   <jhi-alert></jhi-alert>
-
+  <div class="col-md-8 col-sm-4">
+    <h2>
+      <span id="user-management-page-heading" jhiTranslate="userManagement.home.title" data-cy="userManagementPageHeading">Users</span>
+    </h2>
+  </div>
+  <div class="col-md-4 col-sm-8 text-right d-flex flex-row-reverse">
+    <button class="btn btn-info ms-2" (click)="loadAll()" [disabled]="isLoading" [ngbTooltip]="refreshTooltip" placement="bottom">
+      <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+      <ng-template #refreshTooltip>
+        <span jhiTranslate="userManagement.home.refreshListLabel">Refresh list</span>
+      </ng-template>
+    </button>
+    <button class="btn btn-primary jh-create-entity ms-2" [routerLink]="['./new']" [ngbTooltip]="addTooltip" placement="bottom">
+      <fa-icon icon="plus"></fa-icon>
+      <ng-template #addTooltip>
+        <span class="hidden-sm-down" jhiTranslate="userManagement.home.createLabel">Add User</span>
+      </ng-template>
+    </button>
+  </div>
+</div>
+<div class="row">
   <div class="table-responsive" *ngIf="users">
     <table class="table table-striped" aria-describedby="user-management-page-heading">
       <thead>
