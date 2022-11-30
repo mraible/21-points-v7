@@ -47,7 +47,7 @@ describe('Points e2e test', () => {
       cy.task('log', `response: ${response.toString()}`);
       cy.task('log', `response body: ${response.body.toString()}`);
       cy.task('log', `response body length: ${response.body.length}`);
-      if (resonse.body && response.body.length === 0) {
+      if (response.body && response.body.length === 0) {
         cy.get(entityTableSelector).should('not.exist');
       } else {
         cy.get(entityTableSelector).should('exist');
