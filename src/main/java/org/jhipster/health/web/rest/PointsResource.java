@@ -76,8 +76,7 @@ public class PointsResource {
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
-            String username = SecurityUtils.getCurrentUserLogin().get();
-            points.setUser(userRepository.findOneByLogin(username).get());
+            points.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
         }
         Points result = pointsRepository.save(points);
         pointsSearchRepository.index(result);

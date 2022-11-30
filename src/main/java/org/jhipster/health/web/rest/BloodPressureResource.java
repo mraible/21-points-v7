@@ -78,8 +78,7 @@ public class BloodPressureResource {
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
-            String username = SecurityUtils.getCurrentUserLogin().get();
-            bloodPressure.setUser(userRepository.findOneByLogin(username).get());
+            bloodPressure.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
         }
         BloodPressure result = bloodPressureRepository.save(bloodPressure);
         bloodPressureSearchRepository.index(result);

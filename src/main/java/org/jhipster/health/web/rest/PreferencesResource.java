@@ -73,8 +73,7 @@ public class PreferencesResource {
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
-            String username = SecurityUtils.getCurrentUserLogin().get();
-            preferences.setUser(userRepository.findOneByLogin(username).get());
+            preferences.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
         }
         Preferences result = preferencesRepository.save(preferences);
         preferencesSearchRepository.index(result);
