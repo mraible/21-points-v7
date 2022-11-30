@@ -234,7 +234,7 @@ public class PreferencesResource {
     }
 
     /**
-     * {@code GET  /my-preferences : get the current user's preferences
+     * {@code GET  /my-preferences} : get the current user's preferences
      *
      * @return the preferences or default (weeklyGoal: 10) if none exist.
      */
