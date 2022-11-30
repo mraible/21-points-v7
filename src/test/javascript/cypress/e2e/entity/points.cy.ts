@@ -13,8 +13,8 @@ import {
 describe('Points e2e test', () => {
   const pointsPageUrl = '/points';
   const pointsPageUrlPattern = new RegExp('/points(\\?.*)?$');
-  const username = Cypress.env('E2E_USERNAME') ?? 'user';
-  const password = Cypress.env('E2E_PASSWORD') ?? 'user';
+  const username = Cypress.env('E2E_USERNAME') ?? 'admin';
+  const password = Cypress.env('E2E_PASSWORD') ?? 'admin';
   const pointsSample = { date: '2022-11-07' };
 
   let points;
