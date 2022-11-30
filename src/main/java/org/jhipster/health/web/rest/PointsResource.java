@@ -198,10 +198,8 @@ public class PointsResource {
         log.debug("REST request to get a page of Points");
         Page<Points> page;
         if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.warn("ADMIN: calling findAllByOrderByDateDesc");
             page = pointsRepository.findAllByOrderByDateDesc(pageable);
         } else {
-            log.warn("not admin: calling findByUserIsCurrentUser");
             page = pointsRepository.findByUserIsCurrentUser(pageable);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
