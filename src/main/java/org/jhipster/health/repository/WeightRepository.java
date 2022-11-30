@@ -1,5 +1,6 @@
 package org.jhipster.health.repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.jhipster.health.domain.Weight;
@@ -14,8 +15,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface WeightRepository extends JpaRepository<Weight, Long> {
-    @Query("select weight from Weight weight where weight.user.login = ?#{principal.username}")
-    List<Weight> findByUserIsCurrentUser();
+    @Query("select weight from Weight weight where weight.user.login = ?#{principal.username} order by weight.timestamp desc")
+    Page<Weight> findByUserIsCurrentUser(Pageable pageable);
 
     default Optional<Weight> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
@@ -40,4 +41,8 @@ public interface WeightRepository extends JpaRepository<Weight, Long> {
 
     @Query("select weight from Weight weight left join fetch weight.user where weight.id =:id")
     Optional<Weight> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Page<Weight> findAllByOrderByTimestampDesc(Pageable pageable);
+
+    List<Weight> findAllByTimestampBetweenOrderByTimestampDesc(ZonedDateTime firstDate, ZonedDateTime secondDate);
 }

@@ -1,7 +1,5 @@
 package org.jhipster.health.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -74,9 +72,8 @@ public class PreferencesResource {
             throw new BadRequestAlertException("A new preferences cannot already have an ID", ENTITY_NAME, "idexists");
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
-            String username = SecurityUtils.getCurrentUserLogin().get();
-            preferences.setUser(userRepository.findOneByLogin(username).get());
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
+            preferences.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
         }
         Preferences result = preferencesRepository.save(preferences);
         preferencesSearchRepository.index(result);
@@ -234,7 +231,7 @@ public class PreferencesResource {
     }
 
     /**
-     * {@code GET  /my-preferences : get the current user's preferences
+     * {@code GET  /my-preferences} : get the current user's preferences
      *
      * @return the preferences or default (weeklyGoal: 10) if none exist.
      */

@@ -11,6 +11,8 @@ import { PreferencesService } from '../entities/preferences/service/preferences.
 import { IPreferences } from '../entities/preferences/preferences.model';
 import { BloodPressureService } from '../entities/blood-pressure/service/blood-pressure.service';
 import { IBloodPressure, IBloodPressureByPeriod } from '../entities/blood-pressure/blood-pressure.model';
+import { WeightService } from '../entities/weight/service/weight.service';
+import { IWeight, IWeightByPeriod } from '../entities/weight/weight.model';
 
 @Component({
   selector: 'jhi-home',
@@ -25,6 +27,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   bpReadings!: IBloodPressureByPeriod;
   bpOptions: any;
   bpData: any;
+  weights!: IWeightByPeriod;
+  weightOptions: any;
+  weightData: any;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -33,7 +38,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private pointsService: PointsService,
     private preferencesService: PreferencesService,
-    private bloodPressureService: BloodPressureService
+    private bloodPressureService: BloodPressureService,
+    private weightService: WeightService
   ) {}
 
   ngOnInit(): void {
@@ -71,14 +77,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.bloodPressureService.last30Days().subscribe((bpReadings: any) => {
         bpReadings = bpReadings.body;
         this.bpReadings = bpReadings;
-        //this.bpOptions = {... D3ChartService.getChartConfig() };
+        // this.bpOptions = {... D3ChartService.getChartConfig() };
         if (bpReadings.readings.length) {
-          //this.bpOptions.title.text = bpReadings.period;
-          //this.bpOptions.chart.yAxis.axisLabel = 'Blood Pressure';
-          let systolics: any = [];
-          let diastolics: any = [];
-          let upperValues: any = [];
-          let lowerValues: any = [];
+          // this.bpOptions.title.text = bpReadings.period;
+          // this.bpOptions.chart.yAxis.axisLabel = 'Blood Pressure';
+          const systolics: any = [];
+          const diastolics: any = [];
+          const upperValues: any = [];
+          const lowerValues: any = [];
           bpReadings.readings.forEach((item: IBloodPressure) => {
             systolics.push({
               x: item.timestamp,
@@ -104,9 +110,38 @@ export class HomeComponent implements OnInit, OnDestroy {
             },
           ];
           // set y scale to be 10 more than max and min
-          this.bpOptions.chart.yDomain = [Math.min.apply(Math, lowerValues) - 10, Math.max.apply(Math, upperValues) + 10];
+          this.bpOptions.chart.yDomain = [Math.min(...lowerValues) - 10, Math.max(...upperValues) + 10];
         } else {
           this.bpReadings.readings = [];
+        }
+      });
+
+      this.weightService.last30Days().subscribe((weights: any) => {
+        weights = weights.body;
+        this.weights = weights;
+        if (weights.weighIns.length) {
+          // this.weightOptions = { ...D3ChartService.getChartConfig() };
+          // this.weightOptions.title.text = this.weights.period;
+          // this.weightOptions.chart.yAxis.axisLabel = 'Weight';
+          const weightValues: any = [];
+          const values: any = [];
+          weights.weighIns.forEach((item: IWeight) => {
+            weightValues.push({
+              x: item.timestamp,
+              y: item.weight,
+            });
+            values.push(item.weight);
+          });
+          this.weightData = [
+            {
+              values: weightValues,
+              key: 'Weight',
+              color: '#ffeb3b',
+              area: true,
+            },
+          ];
+          // set y scale to be 10 more than max and min
+          this.weightOptions.chart.yDomain = [Math.min(...values) - 10, Math.max(...values) + 10];
         }
       });
     });

@@ -9,3 +9,8 @@ export interface IWeight {
 }
 
 export type NewWeight = Omit<IWeight, 'id'> & { id: null };
+
+export interface IWeightByPeriod {
+  period: string;
+  weighIns: Array<IWeight>;
+}

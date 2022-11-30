@@ -38,6 +38,14 @@ public class Weight implements Serializable {
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
+    public Weight() {}
+
+    public Weight(ZonedDateTime timestamp, Double weight, User user) {
+        this.timestamp = timestamp;
+        this.weight = weight;
+        this.user = user;
+    }
+
     public Long getId() {
         return this.id;
     }

@@ -5,7 +5,7 @@
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <logger name="org.jhipster.health" level="INFO"/>
-
+    <logger name="org.jhipster.health.config.ElasticsearchTestContainer" level="WARN"/>
     <logger name="tech.jhipster" level="WARN"/>
 
     <!-- https://www.testcontainers.org/supported_docker_environment/logging_config/ -->
@@ -15,6 +15,7 @@
     <logger name="javax.activation" level="WARN"/>
     <logger name="javax.mail" level="WARN"/>
     <logger name="javax.xml.bind" level="WARN"/>
+    <logger name="jdk.event.security" level="WARN"/>
     <logger name="ch.qos.logback" level="WARN"/>
     <logger name="com.jayway.jsonpath" level="WARN"/>
     <logger name="com.ryantenney" level="WARN"/>
