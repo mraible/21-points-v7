@@ -42,7 +42,7 @@ public interface BloodPressureRepository extends JpaRepository<BloodPressure, Lo
     @Query("select bloodPressure from BloodPressure bloodPressure left join fetch bloodPressure.user where bloodPressure.id =:id")
     Optional<BloodPressure> findOneWithToOneRelationships(@Param("id") Long id);
 
-    List<BloodPressure> findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(
+    List<BloodPressure> findAllByTimestampBetweenAndUserLoginOrderByTimestampAsc(
         ZonedDateTime firstDate,
         ZonedDateTime secondDate,
         String login

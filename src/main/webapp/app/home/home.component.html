@@ -63,17 +63,18 @@
         </div>
         <div class="row mt-1">
           <div class="col-md-11 col-xs-12">
-            <img src="https://via.placeholder.com/800x200.png?text=Blood Pressure Graph" width="100%" />
-            <!--
-                              <span *ngIf="bpReadings.readings && bpReadings.readings.length">
-                                  <nvd3 [options]="bpOptions" [data]="bpData" class="with-3d-shadow with-transitions"></nvd3>
-                              </span>
-              <ngb-alert [dismissible]="false" [hidden]="bpReadings.readings && bpReadings.readings.length">
-                                  <span jhiTranslate="home.bloodPressure.noReadings">
-                                      No blood pressure readings found.
-                                  </span>
-              </ngb-alert>
-              -->
+            <canvas
+              baseChart
+              *ngIf="bpReadings?.readings && bpReadings?.readings?.length"
+              height="125"
+              [type]="'line'"
+              [data]="bpData"
+              [options]="bpOptions"
+            >
+            </canvas>
+            <ngb-alert [dismissible]="false" [hidden]="bpReadings.readings && bpReadings.readings.length">
+              <span jhiTranslate="home.bloodPressure.noReadings"> No blood pressure readings found. </span>
+            </ngb-alert>
           </div>
         </div>
         <div class="row mt-4">
@@ -88,17 +89,18 @@
         </div>
         <div class="row">
           <div class="col-md-11 col-xs-12">
-            <img src="https://via.placeholder.com/800x200.png?text=Weight Graph" width="100%" />
-            <!--
-                            <span *ngIf="weights.weighIns && weights.weighIns.length">
-                                <nvd3 [options]="weightOptions" [data]="weightData" class="with-3d-shadow with-transitions"></nvd3>
-                            </span>
+            <canvas
+              baseChart
+              *ngIf="weights.weighIns && weights.weighIns.length"
+              height="125"
+              [type]="'line'"
+              [data]="weightData"
+              [options]="weightOptions"
+            >
+            </canvas>
             <ngb-alert [dismissible]="false" [hidden]="weights.weighIns && weights.weighIns.length">
-                                <span jhiTranslate="home.weight.noWeighIns">
-                                    No weigh-ins found.
-                                </span>
+              <span jhiTranslate="home.weight.noWeighIns"> No weigh-ins found. </span>
             </ngb-alert>
-            -->
           </div>
         </div>
 

@@ -263,7 +263,7 @@ public class BloodPressureResource {
         ZonedDateTime rightNow = ZonedDateTime.now();
         ZonedDateTime daysAgo = rightNow.minusDays(days);
 
-        List<BloodPressure> readings = bloodPressureRepository.findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(
+        List<BloodPressure> readings = bloodPressureRepository.findAllByTimestampBetweenAndUserLoginOrderByTimestampAsc(
             daysAgo,
             rightNow,
             SecurityUtils.getCurrentUserLogin().get()

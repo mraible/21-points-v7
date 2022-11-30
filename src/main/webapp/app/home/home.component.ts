@@ -14,6 +14,9 @@ import { IBloodPressure, IBloodPressureByPeriod } from '../entities/blood-pressu
 import { WeightService } from '../entities/weight/service/weight.service';
 import { IWeight, IWeightByPeriod } from '../entities/weight/weight.model';
 
+import { ChartConfiguration, ChartOptions } from 'chart.js';
+import dayjs from 'dayjs/esm';
+
 @Component({
   selector: 'jhi-home',
   templateUrl: './home.component.html',
@@ -25,11 +28,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   pointsPercentage?: number;
   preferences!: IPreferences;
   bpReadings!: IBloodPressureByPeriod;
-  bpOptions: any;
-  bpData: any;
+  bpOptions!: ChartOptions<'line'>;
+  bpData!: ChartConfiguration<'line'>['data'];
   weights!: IWeightByPeriod;
-  weightOptions: any;
-  weightData: any;
+  weightOptions!: ChartOptions<'line'>;
+  weightData!: ChartConfiguration<'line'>['data'];
 
   private readonly destroy$ = new Subject<void>();
 
@@ -77,40 +80,66 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.bloodPressureService.last30Days().subscribe((bpReadings: any) => {
         bpReadings = bpReadings.body;
         this.bpReadings = bpReadings;
-        // this.bpOptions = {... D3ChartService.getChartConfig() };
+
         if (bpReadings.readings.length) {
-          // this.bpOptions.title.text = bpReadings.period;
+          this.bpOptions = {
+            plugins: {
+              legend: { display: true },
+              title: {
+                display: true,
+                text: bpReadings.period,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+              },
+              x: {
+                beginAtZero: false,
+              },
+            },
+          };
           // this.bpOptions.chart.yAxis.axisLabel = 'Blood Pressure';
+          const labels: any = [];
           const systolics: any = [];
           const diastolics: any = [];
           const upperValues: any = [];
           const lowerValues: any = [];
           bpReadings.readings.forEach((item: IBloodPressure) => {
+            const timestamp = dayjs(item.timestamp).format('MMM d');
+            labels.push(timestamp);
             systolics.push({
-              x: item.timestamp,
+              x: timestamp,
               y: item.systolic,
             });
             diastolics.push({
-              x: item.timestamp,
+              x: timestamp,
               y: item.diastolic,
             });
             upperValues.push(item.systolic);
             lowerValues.push(item.diastolic);
           });
-          this.bpData = [
+          const datasets = [
             {
-              values: systolics,
-              key: 'Systolic',
-              color: '#673ab7',
+              data: systolics,
+              label: 'Systolic',
             },
             {
-              values: diastolics,
-              key: 'Diastolic',
-              color: '#03a9f4',
+              data: diastolics,
+              label: 'Diastolic',
             },
           ];
+          this.bpData = {
+            labels,
+            datasets,
+          };
           // set y scale to be 10 more than max and min
-          this.bpOptions.chart.yDomain = [Math.min(...lowerValues) - 10, Math.max(...upperValues) + 10];
+          this.bpOptions.scales = {
+            y: {
+              max: Math.max(...upperValues) + 10,
+              min: Math.min(...lowerValues) - 10,
+            },
+          };
         } else {
           this.bpReadings.readings = [];
         }
@@ -120,28 +149,49 @@ export class HomeComponent implements OnInit, OnDestroy {
         weights = weights.body;
         this.weights = weights;
         if (weights.weighIns.length) {
-          // this.weightOptions = { ...D3ChartService.getChartConfig() };
-          // this.weightOptions.title.text = this.weights.period;
+          this.weightOptions = {
+            responsive: true,
+            plugins: {
+              legend: { display: true },
+              title: {
+                display: true,
+                text: this.weights.period,
+              },
+            },
+          };
           // this.weightOptions.chart.yAxis.axisLabel = 'Weight';
+          const labels: any = [];
           const weightValues: any = [];
           const values: any = [];
           weights.weighIns.forEach((item: IWeight) => {
+            const timestamp = dayjs(item.timestamp).format('MMM d');
+            labels.push(timestamp);
             weightValues.push({
-              x: item.timestamp,
+              x: timestamp,
               y: item.weight,
             });
             values.push(item.weight);
           });
-          this.weightData = [
+          const datasets = [
             {
-              values: weightValues,
-              key: 'Weight',
-              color: '#ffeb3b',
-              area: true,
+              data: weightValues,
+              label: 'Weight',
+              fill: true,
+              borderColor: '#ffeb3b',
+              backgroundColor: 'rgba(255,235,59,0.3)',
             },
           ];
+          this.weightData = {
+            labels,
+            datasets,
+          };
           // set y scale to be 10 more than max and min
-          this.weightOptions.chart.yDomain = [Math.min(...values) - 10, Math.max(...values) + 10];
+          this.weightOptions.scales = {
+            y: {
+              max: Math.max(...values) + 10,
+              min: Math.min(...values) - 10,
+            },
+          };
         }
       });
     });
