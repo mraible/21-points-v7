@@ -1,7 +1,5 @@
 package org.jhipster.health.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,7 +14,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.jhipster.health.domain.Weight;

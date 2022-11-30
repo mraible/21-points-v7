@@ -1,7 +1,5 @@
 package org.jhipster.health.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
