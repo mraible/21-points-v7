@@ -40,11 +40,24 @@ jobs:
         run: npm run ci:e2e:package
       - name: 'E2E: Prepare'
         run: npm run ci:e2e:prepare
-      - name: 'E2E: Run'
-        run: npm run ci:e2e:run
-        env:
-          CYPRESS_ENABLE_RECORD: false
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+      - uses: cypress-io/github-action@v4
+        with:
+          command: npm run ci:e2e:run
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: build/cypress/screenshots
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: cypress-videos
+          path: build/cypress/videos
+#      - name: 'E2E: Run'
+#        run: npm run ci:e2e:run
+#        env:
+#          CYPRESS_ENABLE_RECORD: false
+#          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
       - name: 'E2E: Teardown'
         run: npm run ci:e2e:teardown
