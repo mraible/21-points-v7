@@ -17,11 +17,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.util.IterableUtil;
 import org.jhipster.health.IntegrationTest;
 import org.jhipster.health.domain.User;
@@ -67,6 +69,8 @@ class WeightResourceIT {
     private static final String ENTITY_API_URL = "/api/weights";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
     private static final String ENTITY_SEARCH_API_URL = "/api/_search/weights";
+
+    private static final String TEST_USERNAME = "user";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
@@ -122,6 +126,16 @@ class WeightResourceIT {
     @BeforeEach
     public void initTest() {
         weight = createEntity(em);
+        // re-create the default user if necessary since UserResourceIT deletes all users
+        Optional<User> user = userRepository.findOneByLogin(TEST_USERNAME);
+        if (user.isEmpty()) {
+            User testUser = new User();
+            testUser.setLogin(TEST_USERNAME);
+            testUser.setPassword(RandomStringUtils.randomAlphanumeric(60));
+            testUser.setEmail(TEST_USERNAME + "@example.com");
+            testUser.setActivated(true);
+            userRepository.saveAndFlush(testUser);
+        }
     }
 
     @Test
@@ -199,7 +213,6 @@ class WeightResourceIT {
         weight.setWeight(null);
 
         // Create the Weight, which fails.
-
         restWeightMockMvc
             .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(weight)))
             .andExpect(status().isBadRequest());
@@ -542,7 +555,7 @@ class WeightResourceIT {
 
     private void createByMonth(ZonedDateTime firstDate, ZonedDateTime firstDayOfLastMonth) {
         log.debug("firstDate: {}, firstOfLastMonth: {}", firstDate.toString(), firstDayOfLastMonth.toString());
-        User user = userRepository.findOneByLogin("user").get();
+        User user = userRepository.findOneByLogin(TEST_USERNAME).get();
 
         weightRepository.saveAndFlush(new Weight(firstDate, 205D, user));
         weightRepository.saveAndFlush(new Weight(firstDate.plusDays(10), 200D, user));
