@@ -13,8 +13,8 @@ import {
 describe('Points e2e test', () => {
   const pointsPageUrl = '/points';
   const pointsPageUrlPattern = new RegExp('/points(\\?.*)?$');
-  const username = Cypress.env('E2E_USERNAME') ?? 'admin';
-  const password = Cypress.env('E2E_PASSWORD') ?? 'admin';
+  const username = Cypress.env('E2E_USERNAME') ?? 'user';
+  const password = Cypress.env('E2E_PASSWORD') ?? 'user';
   const pointsSample = { date: '2022-11-07' };
 
   let points;
@@ -44,10 +44,7 @@ describe('Points e2e test', () => {
     cy.visit('/');
     cy.clickOnEntityMenuItem('points');
     cy.wait('@entitiesRequest').then(({ response }) => {
-      cy.task('table', response);
-      cy.task('table', response.body);
-      cy.task('log', `response body length: ${response.body.length}`);
-      if (response.body && response.body.length === 0) {
+      if (response.body.length === 0) {
         cy.get(entityTableSelector).should('not.exist');
       } else {
         cy.get(entityTableSelector).should('exist');
