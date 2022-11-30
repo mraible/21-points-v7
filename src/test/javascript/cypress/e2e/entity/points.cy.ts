@@ -44,9 +44,10 @@ describe('Points e2e test', () => {
     cy.visit('/');
     cy.clickOnEntityMenuItem('points');
     cy.wait('@entitiesRequest').then(({ response }) => {
-      cy.task('log', `response body: ${response.body}`);
+      cy.task('log', `response: ${response.toString()}`);
+      cy.task('log', `response body: ${response.body.toString()}`);
       cy.task('log', `response body length: ${response.body.length}`);
-      if (response.body.length === 0) {
+      if (resonse.body && response.body.length === 0) {
         cy.get(entityTableSelector).should('not.exist');
       } else {
         cy.get(entityTableSelector).should('exist');
