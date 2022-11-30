@@ -48,11 +48,6 @@ jobs:
         with:
           name: cypress-screenshots
           path: build/cypress/screenshots
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: cypress-videos
-          path: build/cypress/videos
 #      - name: 'E2E: Run'
 #        run: npm run ci:e2e:run
 #        env:
