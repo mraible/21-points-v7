@@ -1,6 +1,5 @@
 import dayjs from 'dayjs/esm';
 import { IUser } from 'app/entities/user/user.model';
-import { IBloodPressure } from '../blood-pressure/blood-pressure.model';
 
 export interface IWeight {
   id: number;

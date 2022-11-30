@@ -3,6 +3,7 @@ package org.jhipster.health.web.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.jhipster.health.web.rest.TestUtil.sameInstant;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -12,6 +13,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +23,9 @@ import javax.persistence.EntityManager;
 import org.apache.commons.collections4.IterableUtils;
 import org.assertj.core.util.IterableUtil;
 import org.jhipster.health.IntegrationTest;
+import org.jhipster.health.domain.User;
 import org.jhipster.health.domain.Weight;
+import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.WeightRepository;
 import org.jhipster.health.repository.search.WeightSearchRepository;
 import org.jhipster.health.security.AuthoritiesConstants;
@@ -31,6 +35,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.data.domain.PageImpl;
@@ -48,6 +54,8 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @WithMockUser
 class WeightResourceIT {
+
+    private final Logger log = LoggerFactory.getLogger(WeightResourceIT.class);
 
     private static final ZonedDateTime DEFAULT_TIMESTAMP = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_TIMESTAMP = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
@@ -70,6 +78,9 @@ class WeightResourceIT {
 
     @Autowired
     private WeightSearchRepository weightSearchRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private EntityManager em;
@@ -525,5 +536,62 @@ class WeightResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(weight.getId().intValue())))
             .andExpect(jsonPath("$.[*].timestamp").value(hasItem(sameInstant(DEFAULT_TIMESTAMP))))
             .andExpect(jsonPath("$.[*].weight").value(hasItem(DEFAULT_WEIGHT.doubleValue())));
+    }
+
+    private void createByMonth(ZonedDateTime firstDate, ZonedDateTime firstDayOfLastMonth) {
+        log.debug("firstDate: {}, firstOfLastMonth: {}", firstDate.toString(), firstDayOfLastMonth.toString());
+        User user = userRepository.findOneByLogin("user").get();
+
+        weightRepository.saveAndFlush(new Weight(firstDate, 205D, user));
+        weightRepository.saveAndFlush(new Weight(firstDate.plusDays(10), 200D, user));
+        weightRepository.saveAndFlush(new Weight(firstDate.plusDays(20), 195D, user));
+
+        // last month
+        weightRepository.saveAndFlush(new Weight(firstDayOfLastMonth, 208D, user));
+        weightRepository.saveAndFlush(new Weight(firstDayOfLastMonth.plusDays(11), 206D, user));
+        weightRepository.saveAndFlush(new Weight(firstDayOfLastMonth.plusDays(23), 204D, user));
+    }
+
+    @Test
+    @Transactional
+    public void getForLast30Days() throws Exception {
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime thirtyDaysAgo = now.minusDays(30);
+        ZonedDateTime firstDayOfLastMonth = now.withDayOfMonth(1).minusMonths(1);
+        createByMonth(thirtyDaysAgo, firstDayOfLastMonth);
+
+        // Get all the weighIns
+        restWeightMockMvc
+            .perform(get("/api/weights"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$", hasSize(6)));
+
+        // Get the weighIns for the last 30 days
+        restWeightMockMvc
+            .perform(get("/api/weight-by-days/{days}", 30))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.period").value("Last 30 Days"))
+            .andExpect(jsonPath("$.weighIns.[*].weight").value(hasItem(200D)));
+    }
+
+    @Test
+    @Transactional
+    public void getByLastMonth() throws Exception {
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime firstOfMonth = now.withDayOfMonth(1);
+        ZonedDateTime firstDayOfLastMonth = firstOfMonth.minusMonths(1);
+        createByMonth(firstOfMonth, firstDayOfLastMonth);
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
+
+        // Get the points for last week
+        restWeightMockMvc
+            .perform(get("/api/weight-by-month/{yearAndMonth}", fmt.format(firstDayOfLastMonth)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.period").value(fmt.format(firstDayOfLastMonth)))
+            .andExpect(jsonPath("$.weighIns.[*].weight").value(hasItem(206D)));
     }
 }
