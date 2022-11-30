@@ -77,7 +77,7 @@ public class BloodPressureResource {
             throw new BadRequestAlertException("A new bloodPressure cannot already have an ID", ENTITY_NAME, "idexists");
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
             String username = SecurityUtils.getCurrentUserLogin().get();
             bloodPressure.setUser(userRepository.findOneByLogin(username).get());
         }

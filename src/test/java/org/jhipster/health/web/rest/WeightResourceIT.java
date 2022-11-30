@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.jhipster.health.web.rest.TestUtil.sameInstant;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.Instant;
@@ -131,6 +132,7 @@ class WeightResourceIT {
         // Create the Weight
         restWeightMockMvc
             .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(weight)))
+            .andDo(print())
             .andExpect(status().isCreated());
 
         // Validate the Weight in the database
