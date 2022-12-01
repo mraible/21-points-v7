@@ -129,7 +129,6 @@ export class HomeComponent implements OnInit, OnDestroy {
               label: 'Diastolic',
             },
           ];
-          console.log('labels', labels);
           this.bpData = {
             labels,
             datasets,
