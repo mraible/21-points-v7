@@ -1,5 +1,8 @@
 package org.jhipster.health.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+
 import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,6 +12,9 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.jhipster.health.domain.BloodPressure;
 import org.jhipster.health.repository.BloodPressureRepository;
 import org.jhipster.health.repository.UserRepository;
@@ -71,10 +77,13 @@ public class BloodPressureResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/blood-pressures")
-    public ResponseEntity<BloodPressure> createBloodPressure(@Valid @RequestBody BloodPressure bloodPressure) throws URISyntaxException {
+    public ResponseEntity<?> createBloodPressure(@Valid @RequestBody BloodPressure bloodPressure) throws URISyntaxException {
         log.debug("REST request to save BloodPressure : {}", bloodPressure);
         if (bloodPressure.getId() != null) {
             throw new BadRequestAlertException("A new bloodPressure cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        if (bloodPressure.getUser() != null && !bloodPressure.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+            return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(""));
@@ -99,7 +108,7 @@ public class BloodPressureResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/blood-pressures/{id}")
-    public ResponseEntity<BloodPressure> updateBloodPressure(
+    public ResponseEntity<?> updateBloodPressure(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody BloodPressure bloodPressure
     ) throws URISyntaxException {
@@ -110,9 +119,11 @@ public class BloodPressureResource {
         if (!Objects.equals(id, bloodPressure.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
-
         if (!bloodPressureRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+        if (bloodPressure.getUser() != null && !bloodPressure.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+            return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
         BloodPressure result = bloodPressureRepository.save(bloodPressure);
@@ -135,7 +146,7 @@ public class BloodPressureResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/blood-pressures/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<BloodPressure> partialUpdateBloodPressure(
+    public ResponseEntity<?> partialUpdateBloodPressure(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody BloodPressure bloodPressure
     ) throws URISyntaxException {
@@ -146,9 +157,11 @@ public class BloodPressureResource {
         if (!Objects.equals(id, bloodPressure.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
-
         if (!bloodPressureRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+        if (bloodPressure.getUser() != null && !bloodPressure.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+            return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
         Optional<BloodPressure> result = bloodPressureRepository
@@ -209,9 +222,16 @@ public class BloodPressureResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the bloodPressure, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/blood-pressures/{id}")
-    public ResponseEntity<BloodPressure> getBloodPressure(@PathVariable Long id) {
+    public ResponseEntity<?> getBloodPressure(@PathVariable Long id) {
         log.debug("REST request to get BloodPressure : {}", id);
         Optional<BloodPressure> bloodPressure = bloodPressureRepository.findOneWithEagerRelationships(id);
+        if (
+            bloodPressure.isPresent() &&
+            bloodPressure.get().getUser() != null &&
+            !bloodPressure.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
+            return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
+        }
         return ResponseUtil.wrapOrNotFound(bloodPressure);
     }
 
@@ -222,8 +242,16 @@ public class BloodPressureResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/blood-pressures/{id}")
-    public ResponseEntity<Void> deleteBloodPressure(@PathVariable Long id) {
+    public ResponseEntity<?> deleteBloodPressure(@PathVariable Long id) {
         log.debug("REST request to delete BloodPressure : {}", id);
+        Optional<BloodPressure> bloodPressure = bloodPressureRepository.findById(id);
+        if (
+            bloodPressure.isPresent() &&
+            bloodPressure.get().getUser() != null &&
+            !bloodPressure.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
+            return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
+        }
         bloodPressureRepository.deleteById(id);
         bloodPressureSearchRepository.deleteById(id);
         return ResponseEntity
@@ -246,6 +274,13 @@ public class BloodPressureResource {
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to search for a page of BloodPressures for query {}", query);
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery().must(queryStringQuery(query));
+        if (SecurityUtils.isAuthenticated() && !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            queryBuilder = queryBuilder.filter(matchQuery("user.login", SecurityUtils.getCurrentUserLogin().orElse("")));
+        }
+        // todo: figure out how to use queryBuilder in search()
+        // SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        // sourceBuilder.query(queryBuilder);
         Page<BloodPressure> page = bloodPressureSearchRepository.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
