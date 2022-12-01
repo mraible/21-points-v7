@@ -106,7 +106,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           const upperValues: any = [];
           const lowerValues: any = [];
           bpReadings.readings.forEach((item: IBloodPressure) => {
-            const timestamp = dayjs(item.timestamp).format('MMM d');
+            const timestamp = dayjs(item.timestamp).format('MMM DD');
             labels.push(timestamp);
             systolics.push({
               x: timestamp,
@@ -129,6 +129,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               label: 'Diastolic',
             },
           ];
+          console.log('labels', labels);
           this.bpData = {
             labels,
             datasets,
@@ -164,7 +165,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           const weightValues: any = [];
           const values: any = [];
           weights.weighIns.forEach((item: IWeight) => {
-            const timestamp = dayjs(item.timestamp).format('MMM d');
+            const timestamp = dayjs(item.timestamp).format('MMM DD');
             labels.push(timestamp);
             weightValues.push({
               x: timestamp,
