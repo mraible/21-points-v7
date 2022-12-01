@@ -205,7 +205,7 @@ class PointsResourceIT {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    @WithMockUser(authorities = AuthoritiesConstants.ADMIN)
     void getAllPoints() throws Exception {
         // Initialize the database
         pointsRepository.saveAndFlush(points);

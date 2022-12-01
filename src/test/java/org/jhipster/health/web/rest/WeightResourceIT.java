@@ -225,7 +225,7 @@ class WeightResourceIT {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    @WithMockUser(authorities = AuthoritiesConstants.ADMIN)
     void getAllWeights() throws Exception {
         // Initialize the database
         weightRepository.saveAndFlush(weight);
