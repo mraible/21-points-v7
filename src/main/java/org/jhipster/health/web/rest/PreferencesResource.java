@@ -73,7 +73,7 @@ public class PreferencesResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/preferences")
-    public ResponseEntity<?> createPreferences(@Valid @RequestBody Preferences preferences) throws URISyntaxException {
+    public ResponseEntity<Preferences> createPreferences(@Valid @RequestBody Preferences preferences) throws URISyntaxException {
         log.debug("REST request to save Preferences : {}", preferences);
         if (preferences.getId() != null) {
             throw new BadRequestAlertException("A new preferences cannot already have an ID", ENTITY_NAME, "idexists");
