@@ -42,6 +42,15 @@ public class BloodPressure implements Serializable {
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
+    public BloodPressure() {}
+
+    public BloodPressure(ZonedDateTime dateTime, Integer systolic, Integer diastolic, User user) {
+        this.timestamp = dateTime;
+        this.systolic = systolic;
+        this.diastolic = diastolic;
+        this.user = user;
+    }
+
     public Long getId() {
         return this.id;
     }

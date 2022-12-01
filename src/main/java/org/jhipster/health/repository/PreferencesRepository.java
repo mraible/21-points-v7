@@ -37,4 +37,6 @@ public interface PreferencesRepository extends JpaRepository<Preferences, Long> 
 
     @Query("select preferences from Preferences preferences left join fetch preferences.user where preferences.id =:id")
     Optional<Preferences> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Optional<Preferences> findOneByUserLogin(String login);
 }

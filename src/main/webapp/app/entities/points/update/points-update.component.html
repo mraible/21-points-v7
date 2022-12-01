@@ -1,19 +1,32 @@
 <div class="d-flex justify-content-center">
   <div class="col-8">
     <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-      <h2 id="jhi-points-heading" data-cy="PointsCreateUpdateHeading" jhiTranslate="twentyOnePointsApp.points.home.createOrEditLabel">
+      <h2
+        id="jhi-points-heading"
+        data-cy="PointsCreateUpdateHeading"
+        jhiTranslate="twentyOnePointsApp.points.home.createOrEditLabel"
+        *ngIf="editForm.controls.id.value"
+      >
         Create or edit a Points
+      </h2>
+      <h2
+        id="jhi-points-heading"
+        data-cy="PointsCreateUpdateHeading"
+        jhiTranslate="twentyOnePointsApp.points.home.createLabel"
+        *ngIf="!editForm.controls.id.value"
+      >
+        Add Points
       </h2>
 
       <div>
         <jhi-alert-error></jhi-alert-error>
 
-        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+        <div class="mb-3" *ngIf="editForm.controls.id.value !== null">
           <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
           <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
         </div>
 
-        <div class="row mb-3">
+        <div class="mb-3">
           <label class="form-label" jhiTranslate="twentyOnePointsApp.points.date" for="field_date">Date</label>
           <div class="input-group">
             <input
@@ -35,24 +48,39 @@
           </div>
         </div>
 
-        <div class="row mb-3">
-          <label class="form-label" jhiTranslate="twentyOnePointsApp.points.exercise" for="field_exercise">Exercise</label>
-          <input type="number" class="form-control" name="exercise" id="field_exercise" data-cy="exercise" formControlName="exercise" />
+        <div class="form-check">
+          <label class="form-check-label" jhiTranslate="twentyOnePointsApp.points.exercise" for="field_exercise">Exercise</label>
+          <input
+            type="checkbox"
+            class="form-check-input"
+            name="exercise"
+            id="field_exercise"
+            data-cy="exercise"
+            formControlName="exercise"
+          />
         </div>
 
-        <div class="row mb-3">
-          <label class="form-label" jhiTranslate="twentyOnePointsApp.points.meals" for="field_meals">Meals</label>
-          <input type="number" class="form-control" name="meals" id="field_meals" data-cy="meals" formControlName="meals" />
+        <div class="form-check">
+          <label class="form-check-label" jhiTranslate="twentyOnePointsApp.points.meals" for="field_meals">Meals</label>
+          <input type="checkbox" class="form-check-input" name="meals" id="field_meals" data-cy="meals" formControlName="meals" />
         </div>
 
-        <div class="row mb-3">
-          <label class="form-label" jhiTranslate="twentyOnePointsApp.points.alcohol" for="field_alcohol">Alcohol</label>
-          <input type="number" class="form-control" name="alcohol" id="field_alcohol" data-cy="alcohol" formControlName="alcohol" />
+        <div class="form-check mb-3">
+          <label class="form-check-label" jhiTranslate="twentyOnePointsApp.points.alcohol" for="field_alcohol">Alcohol</label>
+          <input type="checkbox" class="form-check-input" name="alcohol" id="field_alcohol" data-cy="alcohol" formControlName="alcohol" />
         </div>
 
-        <div class="row mb-3">
+        <div class="mb-3">
           <label class="form-label" jhiTranslate="twentyOnePointsApp.points.notes" for="field_notes">Notes</label>
-          <input type="text" class="form-control" name="notes" id="field_notes" data-cy="notes" formControlName="notes" />
+          <textarea
+            class="form-control"
+            name="notes"
+            id="field_notes"
+            data-cy="notes"
+            formControlName="notes"
+            maxlength="140"
+            rows="3"
+          ></textarea>
           <div *ngIf="editForm.get('notes')!.invalid && (editForm.get('notes')!.dirty || editForm.get('notes')!.touched)">
             <small
               class="form-text text-danger"
@@ -65,7 +93,7 @@
           </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="form-group" *jhiHasAnyAuthority="'ROLE_ADMIN'">
           <label class="form-label" jhiTranslate="twentyOnePointsApp.points.user" for="field_user">User</label>
           <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
             <option [ngValue]="null"></option>
@@ -74,8 +102,14 @@
         </div>
       </div>
 
-      <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+      <div class="mt-3">
+        <button
+          type="button"
+          id="cancel-save"
+          data-cy="entityCreateCancelButton"
+          class="btn btn-outline-secondary"
+          (click)="previousState()"
+        >
           <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
         </button>
 

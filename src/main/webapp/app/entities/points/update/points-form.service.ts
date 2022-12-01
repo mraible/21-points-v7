@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-
 import { IPoints, NewPoints } from '../points.model';
+import dayjs from 'dayjs/esm';
 
 /**
  * A partial Type with required key is used as form input.
@@ -35,6 +35,13 @@ export class PointsFormService {
       ...this.getFormDefaults(),
       ...points,
     };
+    if (!pointsRawValue.date) {
+      pointsRawValue.date = dayjs();
+    }
+    // default to the best day possible
+    pointsRawValue.exercise = 1;
+    pointsRawValue.meals = 1;
+    pointsRawValue.alcohol = 1;
     return new FormGroup<PointsFormGroupContent>({
       id: new FormControl(
         { value: pointsRawValue.id, disabled: true },

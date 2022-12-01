@@ -1,32 +1,36 @@
-<div>
-  <h2 id="page-heading" data-cy="WeightHeading">
-    <span jhiTranslate="twentyOnePointsApp.weight.home.title">Weights</span>
-
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
-        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
-        <span jhiTranslate="twentyOnePointsApp.weight.home.refreshListLabel">Refresh list</span>
-      </button>
-
-      <button
-        id="jh-create-entity"
-        data-cy="entityCreateButton"
-        class="btn btn-primary jh-create-entity create-weight"
-        [routerLink]="['/weight/new']"
-      >
-        <fa-icon icon="plus"></fa-icon>
-        <span class="hidden-sm-down" jhiTranslate="twentyOnePointsApp.weight.home.createLabel"> Create a new Weight </span>
-      </button>
-    </div>
-  </h2>
-
+<div class="row">
   <jhi-alert-error></jhi-alert-error>
-
   <jhi-alert></jhi-alert>
 
-  <form name="searchForm" class="row row-cols-sm-auto align-items-center">
-    <div class="col-sm-12">
-      <div class="input-group w-100 mt-3">
+  <div class="col-md-8 col-sm-4">
+    <h2 id="page-heading" data-cy="WeightHeading">
+      <span jhiTranslate="twentyOnePointsApp.weight.home.title">Weights</span>
+    </h2>
+  </div>
+  <div class="col-md-4 col-sm-8 text-right d-flex flex-row-reverse">
+    <button class="btn btn-info ms-2" (click)="load()" [disabled]="isLoading" [ngbTooltip]="refreshTooltip" placement="bottom">
+      <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+      <ng-template #refreshTooltip>
+        <span jhiTranslate="twentyOnePointsApp.weight.home.refreshListLabel">Refresh list</span>
+      </ng-template>
+    </button>
+
+    <button
+      id="jh-create-entity"
+      data-cy="entityCreateButton"
+      class="btn btn-primary jh-create-entity create-weight ms-2"
+      [routerLink]="['/weight/new']"
+      [ngbTooltip]="addTooltip"
+      placement="bottom"
+    >
+      <fa-icon icon="plus"></fa-icon>
+      <ng-template #addTooltip>
+        <span class="hidden-sm-down" jhiTranslate="twentyOnePointsApp.weight.home.createLabel">Add Weight</span>
+      </ng-template>
+    </button>
+
+    <form name="searchForm" class="w-100">
+      <div class="input-group h-100">
         <label class="visually-hidden" for="currentSearch" jhiTranslate="twentyOnePointsApp.weight.home.search">Search for Weight</label>
         <input
           type="text"
@@ -45,10 +49,12 @@
           <fa-icon icon="trash-alt"></fa-icon>
         </button>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
+</div>
 
-  <div class="alert alert-warning" id="no-result" *ngIf="weights?.length === 0">
+<div class="row">
+  <div class="alert alert-warning mt-3" id="no-result" *ngIf="weights?.length === 0">
     <span jhiTranslate="twentyOnePointsApp.weight.home.notFound">No Weights found</span>
   </div>
 
@@ -56,12 +62,6 @@
     <table class="table table-striped" aria-describedby="page-heading">
       <thead>
         <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="navigateToWithComponentValues()">
-          <th scope="col" jhiSortBy="id">
-            <div class="d-flex">
-              <span jhiTranslate="global.field.id">ID</span>
-              <fa-icon class="p-1" icon="sort"></fa-icon>
-            </div>
-          </th>
           <th scope="col" jhiSortBy="timestamp">
             <div class="d-flex">
               <span jhiTranslate="twentyOnePointsApp.weight.timestamp">Timestamp</span>
@@ -91,9 +91,8 @@
       >
         <tr *ngFor="let weight of weights; trackBy: trackId" data-cy="entityTable">
           <td>
-            <a [routerLink]="['/weight', weight.id, 'view']">{{ weight.id }}</a>
+            <a [routerLink]="['/weight', weight.id, 'view']">{{ weight.timestamp | formatMediumDatetime }}</a>
           </td>
-          <td>{{ weight.timestamp | formatMediumDatetime }}</td>
           <td>{{ weight.weight }}</td>
           <td>
             {{ weight.user?.login }}

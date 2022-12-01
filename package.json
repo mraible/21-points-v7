@@ -1,9 +1,9 @@
 {
-  "name": "twenty-one-points",
-  "version": "0.0.1-SNAPSHOT",
+  "name": "21-points",
+  "version": "7.0.0-SNAPSHOT",
   "private": true,
-  "description": "Description for TwentyOnePoints",
-  "license": "UNLICENSED",
+  "description": "21-Points Health is an app you can use to monitor your health.",
+  "license": "Apache-2.0",
   "scripts": {
     "app:start": "./gradlew",
     "backend:build-cache": "npm run backend:info && npm run backend:nohttp:test && npm run ci:e2e:package",
@@ -101,6 +101,7 @@
     "@popperjs/core": "2.11.6",
     "bootstrap": "5.2.0",
     "dayjs": "1.11.5",
+    "ng2-charts": "4.0.0",
     "ngx-infinite-scroll": "14.0.0",
     "ngx-webstorage": "10.0.1",
     "rxjs": "7.5.6",

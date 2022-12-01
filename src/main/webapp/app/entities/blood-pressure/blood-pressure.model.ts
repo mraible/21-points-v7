@@ -10,3 +10,8 @@ export interface IBloodPressure {
 }
 
 export type NewBloodPressure = Omit<IBloodPressure, 'id'> & { id: null };
+
+export interface IBloodPressureByPeriod {
+  period: string;
+  readings: Array<IBloodPressure>;
+}

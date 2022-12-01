@@ -1,32 +1,36 @@
-<div>
-  <h2 id="page-heading" data-cy="BloodPressureHeading">
-    <span jhiTranslate="twentyOnePointsApp.bloodPressure.home.title">Blood Pressures</span>
-
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
-        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
-        <span jhiTranslate="twentyOnePointsApp.bloodPressure.home.refreshListLabel">Refresh list</span>
-      </button>
-
-      <button
-        id="jh-create-entity"
-        data-cy="entityCreateButton"
-        class="btn btn-primary jh-create-entity create-blood-pressure"
-        [routerLink]="['/blood-pressure/new']"
-      >
-        <fa-icon icon="plus"></fa-icon>
-        <span class="hidden-sm-down" jhiTranslate="twentyOnePointsApp.bloodPressure.home.createLabel"> Create a new Blood Pressure </span>
-      </button>
-    </div>
-  </h2>
-
+<div class="row">
   <jhi-alert-error></jhi-alert-error>
-
   <jhi-alert></jhi-alert>
 
-  <form name="searchForm" class="row row-cols-sm-auto align-items-center">
-    <div class="col-sm-12">
-      <div class="input-group w-100 mt-3">
+  <div class="col-md-8 col-sm-4">
+    <h2 id="page-heading" data-cy="BloodPressureHeading">
+      <span jhiTranslate="twentyOnePointsApp.bloodPressure.home.title">Blood Pressures</span>
+    </h2>
+  </div>
+  <div class="col-md-4 col-sm-8 text-right d-flex flex-row-reverse">
+    <button class="btn btn-info ms-2" (click)="load()" [disabled]="isLoading" [ngbTooltip]="refreshTooltip" placement="bottom">
+      <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+      <ng-template #refreshTooltip>
+        <span jhiTranslate="twentyOnePointsApp.bloodPressure.home.refreshListLabel">Refresh list</span>
+      </ng-template>
+    </button>
+
+    <button
+      id="jh-create-entity"
+      data-cy="entityCreateButton"
+      class="btn btn-primary jh-create-entity create-blood-pressure ms-2"
+      [routerLink]="['/blood-pressure/new']"
+      [ngbTooltip]="addTooltip"
+      placement="bottom"
+    >
+      <fa-icon icon="plus"></fa-icon>
+      <ng-template #addTooltip>
+        <span class="hidden-sm-down" jhiTranslate="twentyOnePointsApp.bloodPressure.home.createLabel">Add Blood Pressure</span>
+      </ng-template>
+    </button>
+
+    <form name="searchForm" class="w-100">
+      <div class="input-group h-100">
         <label class="visually-hidden" for="currentSearch" jhiTranslate="twentyOnePointsApp.bloodPressure.home.search"
           >Search for Blood Pressure</label
         >
@@ -47,10 +51,11 @@
           <fa-icon icon="trash-alt"></fa-icon>
         </button>
       </div>
-    </div>
-  </form>
-
-  <div class="alert alert-warning" id="no-result" *ngIf="bloodPressures?.length === 0">
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="alert alert-warning mt-3" id="no-result" *ngIf="bloodPressures?.length === 0">
     <span jhiTranslate="twentyOnePointsApp.bloodPressure.home.notFound">No Blood Pressures found</span>
   </div>
 
@@ -58,12 +63,6 @@
     <table class="table table-striped" aria-describedby="page-heading">
       <thead>
         <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="navigateToWithComponentValues()">
-          <th scope="col" jhiSortBy="id">
-            <div class="d-flex">
-              <span jhiTranslate="global.field.id">ID</span>
-              <fa-icon class="p-1" icon="sort"></fa-icon>
-            </div>
-          </th>
           <th scope="col" jhiSortBy="timestamp">
             <div class="d-flex">
               <span jhiTranslate="twentyOnePointsApp.bloodPressure.timestamp">Timestamp</span>
@@ -99,9 +98,8 @@
       >
         <tr *ngFor="let bloodPressure of bloodPressures; trackBy: trackId" data-cy="entityTable">
           <td>
-            <a [routerLink]="['/blood-pressure', bloodPressure.id, 'view']">{{ bloodPressure.id }}</a>
+            <a [routerLink]="['/blood-pressure', bloodPressure.id, 'view']">{{ bloodPressure.timestamp | formatMediumDatetime }}</a>
           </td>
-          <td>{{ bloodPressure.timestamp | formatMediumDatetime }}</td>
           <td>{{ bloodPressure.systolic }}</td>
           <td>{{ bloodPressure.diastolic }}</td>
           <td>

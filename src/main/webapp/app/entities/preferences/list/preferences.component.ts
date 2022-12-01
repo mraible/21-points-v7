@@ -18,7 +18,8 @@ export class PreferencesComponent implements OnInit {
 
   preferences?: IPreferences[];
   isLoading = false;
-
+  // todo: wire up logic to set
+  isAdmin: boolean;
   predicate = 'id';
   ascending = true;
   currentSearch = '';
@@ -29,7 +30,9 @@ export class PreferencesComponent implements OnInit {
     public router: Router,
     protected sortService: SortService,
     protected modalService: NgbModal
-  ) {}
+  ) {
+    this.isAdmin = true;
+  }
 
   trackId = (_index: number, item: IPreferences): number => this.preferencesService.getPreferencesIdentifier(item);
 

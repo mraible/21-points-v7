@@ -52,7 +52,7 @@ public class SecurityConfiguration {
         // @formatter:off
         http
             .csrf()
-            .ignoringAntMatchers("/h2-console/**")
+            //.ignoringAntMatchers("/h2-console/**") - Rob Winch says disable() disables everything
             .disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
@@ -70,6 +70,10 @@ public class SecurityConfiguration {
         .and()
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+            .requiresChannel()
+            .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
+            .requiresSecure()
         .and()
             .authorizeRequests()
             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()

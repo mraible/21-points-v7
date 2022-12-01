@@ -1,5 +1,6 @@
 package org.jhipster.health.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.jhipster.health.domain.Points;
@@ -14,8 +15,10 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PointsRepository extends JpaRepository<Points, Long> {
-    @Query("select points from Points points where points.user.login = ?#{principal.username}")
-    List<Points> findByUserIsCurrentUser();
+    @Query("select points from Points points where points.user.login = ?#{principal.username} order by points.date desc")
+    Page<Points> findByUserIsCurrentUser(Pageable pageable);
+
+    Page<Points> findAllByOrderByDateDesc(Pageable pageable);
 
     default Optional<Points> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
@@ -40,4 +43,6 @@ public interface PointsRepository extends JpaRepository<Points, Long> {
 
     @Query("select points from Points points left join fetch points.user where points.id =:id")
     Optional<Points> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<Points> findAllByDateBetweenAndUserLogin(LocalDate firstDate, LocalDate secondDate, String login);
 }
