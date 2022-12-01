@@ -3,6 +3,7 @@ package org.jhipster.health.web.rest;
 import io.micrometer.core.annotation.Timed;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.jhipster.health.domain.Preferences;
+import org.jhipster.health.domain.User;
 import org.jhipster.health.repository.PreferencesRepository;
 import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.search.PreferencesSearchRepository;
@@ -75,6 +77,10 @@ public class PreferencesResource {
             log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(""));
             preferences.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse("")).orElse(null));
         }
+        log.debug("Settings preferences for current user: {}", SecurityUtils.getCurrentUserLogin());
+        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null);
+        preferences.setUser(user);
+
         Preferences result = preferencesRepository.save(preferences);
         preferencesSearchRepository.index(result);
         return ResponseEntity
@@ -180,11 +186,17 @@ public class PreferencesResource {
     @GetMapping("/preferences")
     public List<Preferences> getAllPreferences(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
         log.debug("REST request to get all Preferences");
-        if (eagerload) {
-            return preferencesRepository.findAllWithEagerRelationships();
+        List<Preferences> preferences = new ArrayList<>();
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            preferences = preferencesRepository.findAll();
         } else {
-            return preferencesRepository.findAll();
+            Preferences userPreferences = getUserPreferences().getBody();
+            // don't return default value of 10 points in this method
+            if (userPreferences.getId() != null) {
+                preferences.add(userPreferences);
+            }
         }
+        return preferences;
     }
 
     /**
@@ -238,7 +250,7 @@ public class PreferencesResource {
     @GetMapping("/my-preferences")
     @Timed
     public ResponseEntity<Preferences> getUserPreferences() {
-        String username = SecurityUtils.getCurrentUserLogin().orElse(null);
+        String username = SecurityUtils.getCurrentUserLogin().orElse("");
         log.debug("REST request to get Preferences : {}", username);
         Optional<Preferences> preferences = preferencesRepository.findOneByUserLogin(username);
 

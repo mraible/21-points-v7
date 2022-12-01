@@ -193,10 +193,10 @@ public class BloodPressureResource {
     ) {
         log.debug("REST request to get a page of BloodPressures");
         Page<BloodPressure> page;
-        if (eagerload) {
-            page = bloodPressureRepository.findAllWithEagerRelationships(pageable);
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            page = bloodPressureRepository.findAllByOrderByTimestampDesc(pageable);
         } else {
-            page = bloodPressureRepository.findAll(pageable);
+            page = bloodPressureRepository.findByUserIsCurrentUser(pageable);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -266,7 +266,7 @@ public class BloodPressureResource {
         List<BloodPressure> readings = bloodPressureRepository.findAllByTimestampBetweenAndUserLoginOrderByTimestampAsc(
             daysAgo,
             rightNow,
-            SecurityUtils.getCurrentUserLogin().orElse(null)
+            SecurityUtils.getCurrentUserLogin().orElse("")
         );
         BloodPressureByPeriod response = new BloodPressureByPeriod("Last " + days + " Days", readings);
         return new ResponseEntity<>(response, HttpStatus.OK);

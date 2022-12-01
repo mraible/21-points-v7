@@ -279,7 +279,7 @@ public class PointsResource {
         List<Points> points = pointsRepository.findAllByDateBetweenAndUserLogin(
             startOfWeek,
             endOfWeek,
-            SecurityUtils.getCurrentUserLogin().orElse(null)
+            SecurityUtils.getCurrentUserLogin().orElse("")
         );
         return calculatePoints(startOfWeek, points);
     }

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BloodPressureRepository extends JpaRepository<BloodPressure, Long> {
     @Query("select bloodPressure from BloodPressure bloodPressure where bloodPressure.user.login = ?#{principal.username}")
-    List<BloodPressure> findByUserIsCurrentUser();
+    Page<BloodPressure> findByUserIsCurrentUser(Pageable pageable);
 
     default Optional<BloodPressure> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
@@ -47,4 +47,6 @@ public interface BloodPressureRepository extends JpaRepository<BloodPressure, Lo
         ZonedDateTime secondDate,
         String login
     );
+
+    Page<BloodPressure> findAllByOrderByTimestampDesc(Pageable pageable);
 }
