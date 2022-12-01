@@ -102,8 +102,10 @@ public class PointsResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/points/{id}")
-    public ResponseEntity<?> updatePoints(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Points points)
-        throws URISyntaxException {
+    public ResponseEntity<Points> updatePoints(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody Points points
+    ) throws URISyntaxException {
         log.debug("REST request to update Points : {}, {}", id, points);
         if (points.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

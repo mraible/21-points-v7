@@ -141,7 +141,7 @@ public class BloodPressureResource {
     /**
      * {@code PATCH  /blood-pressures/:id} : Partial updates given fields of an existing bloodPressure, field will ignore if it is null
      *
-     * @param id            the id of the bloodPressure to save.
+     * @param id the id of the bloodPressure to save.
      * @param bloodPressure the bloodPressure to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated bloodPressure,
      * or with status {@code 400 (Bad Request)} if the bloodPressure is not valid,
@@ -203,7 +203,7 @@ public class BloodPressureResource {
     /**
      * {@code GET  /blood-pressures} : get all the bloodPressures.
      *
-     * @param pageable  the pagination information.
+     * @param pageable the pagination information.
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of bloodPressures in body.
      */
@@ -274,7 +274,7 @@ public class BloodPressureResource {
      * {@code SEARCH  /_search/blood-pressures?query=:query} : search for the bloodPressure corresponding
      * to the query.
      *
-     * @param query    the query of the bloodPressure search.
+     * @param query the query of the bloodPressure search.
      * @param pageable the pagination information.
      * @return the result of the search.
      */

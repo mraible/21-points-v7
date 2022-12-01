@@ -85,7 +85,11 @@ public class WeightResource {
         if (weight.getId() != null) {
             throw new BadRequestAlertException("A new weight cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        if (weight.getUser() != null && !weight.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            weight.getUser() != null &&
+            !weight.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
@@ -111,8 +115,10 @@ public class WeightResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/weights/{id}")
-    public ResponseEntity<?> updateWeight(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Weight weight)
-        throws URISyntaxException {
+    public ResponseEntity<Weight> updateWeight(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody Weight weight
+    ) throws URISyntaxException {
         log.debug("REST request to update Weight : {}, {}", id, weight);
         if (weight.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
