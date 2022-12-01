@@ -72,7 +72,7 @@ public class PreferencesResource {
             throw new BadRequestAlertException("A new preferences cannot already have an ID", ENTITY_NAME, "idexists");
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(null));
             preferences.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
         }
         Preferences result = preferencesRepository.save(preferences);
@@ -238,7 +238,7 @@ public class PreferencesResource {
     @GetMapping("/my-preferences")
     @Timed
     public ResponseEntity<Preferences> getUserPreferences() {
-        String username = SecurityUtils.getCurrentUserLogin().get();
+        String username = SecurityUtils.getCurrentUserLogin().orElse(null);
         log.debug("REST request to get Preferences : {}", username);
         Optional<Preferences> preferences = preferencesRepository.findOneByUserLogin(username);
 

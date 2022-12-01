@@ -75,7 +75,7 @@ public class PointsResource {
             throw new BadRequestAlertException("A new points cannot already have an ID", ENTITY_NAME, "idexists");
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(null));
             points.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
         }
         Points result = pointsRepository.save(points);
@@ -279,7 +279,7 @@ public class PointsResource {
         List<Points> points = pointsRepository.findAllByDateBetweenAndUserLogin(
             startOfWeek,
             endOfWeek,
-            SecurityUtils.getCurrentUserLogin().get()
+            SecurityUtils.getCurrentUserLogin().orElse(null)
         );
         return calculatePoints(startOfWeek, points);
     }

@@ -77,7 +77,7 @@ public class BloodPressureResource {
             throw new BadRequestAlertException("A new bloodPressure cannot already have an ID", ENTITY_NAME, "idexists");
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().get());
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(null));
             bloodPressure.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
         }
         BloodPressure result = bloodPressureRepository.save(bloodPressure);
@@ -266,7 +266,7 @@ public class BloodPressureResource {
         List<BloodPressure> readings = bloodPressureRepository.findAllByTimestampBetweenAndUserLoginOrderByTimestampAsc(
             daysAgo,
             rightNow,
-            SecurityUtils.getCurrentUserLogin().get()
+            SecurityUtils.getCurrentUserLogin().orElse(null)
         );
         BloodPressureByPeriod response = new BloodPressureByPeriod("Last " + days + " Days", readings);
         return new ResponseEntity<>(response, HttpStatus.OK);
