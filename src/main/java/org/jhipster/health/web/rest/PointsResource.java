@@ -75,8 +75,8 @@ public class PointsResource {
             throw new BadRequestAlertException("A new points cannot already have an ID", ENTITY_NAME, "idexists");
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(null));
-            points.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(""));
+            points.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse("")).orElse(null));
         }
         Points result = pointsRepository.save(points);
         pointsSearchRepository.index(result);

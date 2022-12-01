@@ -72,8 +72,8 @@ public class PreferencesResource {
             throw new BadRequestAlertException("A new preferences cannot already have an ID", ENTITY_NAME, "idexists");
         }
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(null));
-            preferences.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null));
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin().orElse(""));
+            preferences.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse("")).orElse(null));
         }
         Preferences result = preferencesRepository.save(preferences);
         preferencesSearchRepository.index(result);
