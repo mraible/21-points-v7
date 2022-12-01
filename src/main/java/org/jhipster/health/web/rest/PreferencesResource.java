@@ -116,7 +116,11 @@ public class PreferencesResource {
         if (!preferencesRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-        if (preferences.getUser() != null && !preferences.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            preferences.getUser() != null &&
+            !preferences.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
@@ -154,7 +158,11 @@ public class PreferencesResource {
         if (!preferencesRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-        if (preferences.getUser() != null && !preferences.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            preferences.getUser() != null &&
+            !preferences.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
@@ -216,6 +224,7 @@ public class PreferencesResource {
         log.debug("REST request to get Preferences : {}", id);
         Optional<Preferences> preferences = preferencesRepository.findOneWithEagerRelationships(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             preferences.isPresent() &&
             preferences.get().getUser() != null &&
             !preferences.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
@@ -236,6 +245,7 @@ public class PreferencesResource {
         log.debug("REST request to delete Preferences : {}", id);
         Optional<Preferences> preferences = preferencesRepository.findById(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             preferences.isPresent() &&
             preferences.get().getUser() != null &&
             !preferences.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))

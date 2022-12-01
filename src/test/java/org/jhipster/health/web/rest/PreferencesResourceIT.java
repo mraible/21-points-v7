@@ -22,6 +22,7 @@ import org.jhipster.health.domain.Preferences;
 import org.jhipster.health.domain.enumeration.Units;
 import org.jhipster.health.repository.PreferencesRepository;
 import org.jhipster.health.repository.search.PreferencesSearchRepository;
+import org.jhipster.health.security.AuthoritiesConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -197,6 +198,7 @@ class PreferencesResourceIT {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthoritiesConstants.ADMIN)
     void getAllPreferences() throws Exception {
         // Initialize the database
         preferencesRepository.saveAndFlush(preferences);

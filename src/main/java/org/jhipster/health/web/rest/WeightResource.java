@@ -120,10 +120,13 @@ public class WeightResource {
         if (!Objects.equals(id, weight.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
-        if (weight.getUser() != null && !weight.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            weight.getUser() != null &&
+            !weight.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
-
         if (!weightRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
@@ -162,7 +165,11 @@ public class WeightResource {
         if (!weightRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-        if (weight.getUser() != null && !weight.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            weight.getUser() != null &&
+            !weight.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
@@ -225,6 +232,7 @@ public class WeightResource {
         log.debug("REST request to get Weight : {}", id);
         Optional<Weight> weight = weightRepository.findOneWithEagerRelationships(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             weight.isPresent() &&
             weight.get().getUser() != null &&
             !weight.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
@@ -245,6 +253,7 @@ public class WeightResource {
         log.debug("REST request to delete Weight : {}", id);
         Optional<Weight> weight = weightRepository.findById(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             weight.isPresent() &&
             weight.get().getUser() != null &&
             !weight.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))

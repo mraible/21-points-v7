@@ -114,7 +114,11 @@ public class PointsResource {
         if (!pointsRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-        if (points.getUser() != null && !points.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            points.getUser() != null &&
+            !points.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
@@ -152,7 +156,11 @@ public class PointsResource {
         if (!pointsRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-        if (points.getUser() != null && !points.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            points.getUser() != null &&
+            !points.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
@@ -224,6 +232,7 @@ public class PointsResource {
         log.debug("REST request to get Points : {}", id);
         Optional<Points> points = pointsRepository.findOneWithEagerRelationships(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             points.isPresent() &&
             points.get().getUser() != null &&
             !points.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
@@ -244,6 +253,7 @@ public class PointsResource {
         log.debug("REST request to delete Points : {}", id);
         Optional<Points> points = pointsRepository.findById(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             points.isPresent() &&
             points.get().getUser() != null &&
             !points.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))

@@ -122,7 +122,11 @@ public class BloodPressureResource {
         if (!bloodPressureRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-        if (bloodPressure.getUser() != null && !bloodPressure.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            bloodPressure.getUser() != null &&
+            !bloodPressure.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
@@ -137,7 +141,7 @@ public class BloodPressureResource {
     /**
      * {@code PATCH  /blood-pressures/:id} : Partial updates given fields of an existing bloodPressure, field will ignore if it is null
      *
-     * @param id the id of the bloodPressure to save.
+     * @param id            the id of the bloodPressure to save.
      * @param bloodPressure the bloodPressure to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated bloodPressure,
      * or with status {@code 400 (Bad Request)} if the bloodPressure is not valid,
@@ -160,7 +164,11 @@ public class BloodPressureResource {
         if (!bloodPressureRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-        if (bloodPressure.getUser() != null && !bloodPressure.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))) {
+        if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
+            bloodPressure.getUser() != null &&
+            !bloodPressure.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
+        ) {
             return new ResponseEntity<>("error.http.403", HttpStatus.FORBIDDEN);
         }
 
@@ -195,7 +203,7 @@ public class BloodPressureResource {
     /**
      * {@code GET  /blood-pressures} : get all the bloodPressures.
      *
-     * @param pageable the pagination information.
+     * @param pageable  the pagination information.
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of bloodPressures in body.
      */
@@ -226,6 +234,7 @@ public class BloodPressureResource {
         log.debug("REST request to get BloodPressure : {}", id);
         Optional<BloodPressure> bloodPressure = bloodPressureRepository.findOneWithEagerRelationships(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             bloodPressure.isPresent() &&
             bloodPressure.get().getUser() != null &&
             !bloodPressure.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
@@ -246,6 +255,7 @@ public class BloodPressureResource {
         log.debug("REST request to delete BloodPressure : {}", id);
         Optional<BloodPressure> bloodPressure = bloodPressureRepository.findById(id);
         if (
+            !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) &&
             bloodPressure.isPresent() &&
             bloodPressure.get().getUser() != null &&
             !bloodPressure.get().getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin().orElse(""))
@@ -264,7 +274,7 @@ public class BloodPressureResource {
      * {@code SEARCH  /_search/blood-pressures?query=:query} : search for the bloodPressure corresponding
      * to the query.
      *
-     * @param query the query of the bloodPressure search.
+     * @param query    the query of the bloodPressure search.
      * @param pageable the pagination information.
      * @return the result of the search.
      */
