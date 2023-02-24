@@ -13,8 +13,8 @@ import {
 describe('Preferences e2e test', () => {
   const preferencesPageUrl = '/preferences';
   const preferencesPageUrlPattern = new RegExp('/preferences(\\?.*)?$');
-  const username = Cypress.env('E2E_USERNAME') ?? 'user';
-  const password = Cypress.env('E2E_PASSWORD') ?? 'user';
+  const username = Cypress.env('E2E_USERNAME') ?? 'admin';
+  const password = Cypress.env('E2E_PASSWORD') ?? 'admin';
   const preferencesSample = { weeklyGoal: 20, weightUnits: 'LB' };
 
   let preferences;

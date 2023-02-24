@@ -1,9 +1,9 @@
 {
   "twentyOnePointsApp": {
     "Units": {
-      "null": "",
-      "KG": "KG",
-      "LB": "LB"
+      "select": "Select weight unit",
+      "KG": "Kilograms (kg)",
+      "LB": "Pounds (lb)"
     }
   }
 }

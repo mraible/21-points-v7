@@ -8,7 +8,7 @@ import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { SearchWithPagination } from 'app/core/request/request.model';
-import { IBloodPressure, NewBloodPressure } from '../blood-pressure.model';
+import { IBloodPressure, IBloodPressureByPeriod, NewBloodPressure } from '../blood-pressure.model';
 
 export type PartialUpdateBloodPressure = Partial<IBloodPressure> & Pick<IBloodPressure, 'id'>;
 
@@ -75,6 +75,10 @@ export class BloodPressureService {
     return this.http
       .get<RestBloodPressure[]>(this.resourceSearchUrl, { params: options, observe: 'response' })
       .pipe(map(res => this.convertResponseArrayFromServer(res)));
+  }
+
+  last30Days(): Observable<HttpResponse<IBloodPressureByPeriod>> {
+    return this.http.get<IBloodPressureByPeriod>('api/bp-by-days/30', { observe: 'response' });
   }
 
   getBloodPressureIdentifier(bloodPressure: Pick<IBloodPressure, 'id'>): number {

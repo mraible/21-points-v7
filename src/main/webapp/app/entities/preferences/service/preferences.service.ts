@@ -54,6 +54,10 @@ export class PreferencesService {
     return this.http.get<IPreferences[]>(this.resourceSearchUrl, { params: options, observe: 'response' });
   }
 
+  user(): Observable<EntityResponseType> {
+    return this.http.get<IPreferences>('api/my-preferences', { observe: 'response' });
+  }
+
   getPreferencesIdentifier(preferences: Pick<IPreferences, 'id'>): number {
     return preferences.id;
   }

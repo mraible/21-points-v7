@@ -1,32 +1,37 @@
-<div>
-  <h2 id="page-heading" data-cy="PreferencesHeading">
-    <span jhiTranslate="twentyOnePointsApp.preferences.home.title">Preferences</span>
-
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
-        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
-        <span jhiTranslate="twentyOnePointsApp.preferences.home.refreshListLabel">Refresh list</span>
-      </button>
-
-      <button
-        id="jh-create-entity"
-        data-cy="entityCreateButton"
-        class="btn btn-primary jh-create-entity create-preferences"
-        [routerLink]="['/preferences/new']"
-      >
-        <fa-icon icon="plus"></fa-icon>
-        <span class="hidden-sm-down" jhiTranslate="twentyOnePointsApp.preferences.home.createLabel"> Create a new Preferences </span>
-      </button>
-    </div>
-  </h2>
-
+<div class="row">
   <jhi-alert-error></jhi-alert-error>
-
   <jhi-alert></jhi-alert>
 
-  <form name="searchForm" class="row row-cols-sm-auto align-items-center">
-    <div class="col-sm-12">
-      <div class="input-group w-100 mt-3">
+  <div class="col-md-8 col-sm-4">
+    <h2 id="page-heading" data-cy="PreferencesHeading">
+      <span jhiTranslate="twentyOnePointsApp.preferences.home.title">Preferences</span>
+    </h2>
+  </div>
+  <div class="col-md-4 col-sm-8 text-right d-flex flex-row-reverse">
+    <button class="btn btn-info ms-2" (click)="load()" [disabled]="isLoading" [ngbTooltip]="refreshTooltip" placement="bottom">
+      <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+      <ng-template #refreshTooltip>
+        <span jhiTranslate="twentyOnePointsApp.preferences.home.refreshListLabel">Refresh list</span>
+      </ng-template>
+    </button>
+
+    <button
+      id="jh-create-entity"
+      data-cy="entityCreateButton"
+      class="btn btn-primary jh-create-entity create-preferences ms-2"
+      [hidden]="preferences?.length && !isAdmin"
+      [routerLink]="['/preferences/new']"
+      [ngbTooltip]="addTooltip"
+      placement="bottom"
+    >
+      <fa-icon icon="plus"></fa-icon>
+      <ng-template #addTooltip>
+        <span class="hidden-sm-down" jhiTranslate="twentyOnePointsApp.preferences.home.createLabel">Add Preference</span>
+      </ng-template>
+    </button>
+
+    <form name="searchForm" class="w-100">
+      <div class="input-group h-100">
         <label class="visually-hidden" for="currentSearch" jhiTranslate="twentyOnePointsApp.preferences.home.search"
           >Search for Preferences</label
         >
@@ -47,10 +52,11 @@
           <fa-icon icon="trash-alt"></fa-icon>
         </button>
       </div>
-    </div>
-  </form>
-
-  <div class="alert alert-warning" id="no-result" *ngIf="preferences?.length === 0">
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="alert alert-warning mt-3" id="no-result" *ngIf="preferences?.length === 0">
     <span jhiTranslate="twentyOnePointsApp.preferences.home.notFound">No Preferences found</span>
   </div>
 
@@ -76,7 +82,7 @@
               <fa-icon class="p-1" *ngIf="!currentSearch" icon="sort"></fa-icon>
             </div>
           </th>
-          <th scope="col" jhiSortBy="user.login">
+          <th *jhiHasAnyAuthority="'ROLE_ADMIN'" scope="col" jhiSortBy="user.login">
             <div class="d-flex">
               <span jhiTranslate="twentyOnePointsApp.preferences.user">User</span>
               <fa-icon class="p-1" icon="sort"></fa-icon>
@@ -92,7 +98,7 @@
           </td>
           <td>{{ preferences.weeklyGoal }}</td>
           <td jhiTranslate="{{ 'twentyOnePointsApp.Units.' + preferences.weightUnits }}">{{ preferences.weightUnits }}</td>
-          <td>
+          <td *jhiHasAnyAuthority="'ROLE_ADMIN'">
             {{ preferences.user?.login }}
           </td>
           <td class="text-end">

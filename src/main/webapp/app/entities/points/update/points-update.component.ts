@@ -49,6 +49,12 @@ export class PointsUpdateComponent implements OnInit {
   save(): void {
     this.isSaving = true;
     const points = this.pointsFormService.getPoints(this.editForm);
+
+    // convert booleans to ints
+    points.exercise = points.exercise ? 1 : 0;
+    points.meals = points.meals ? 1 : 0;
+    points.alcohol = points.alcohol ? 1 : 0;
+
     if (points.id !== null) {
       this.subscribeToSaveResponse(this.pointsService.update(points));
     } else {

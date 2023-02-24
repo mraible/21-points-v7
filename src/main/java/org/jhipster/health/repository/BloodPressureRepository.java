@@ -1,5 +1,6 @@
 package org.jhipster.health.repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.jhipster.health.domain.BloodPressure;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BloodPressureRepository extends JpaRepository<BloodPressure, Long> {
     @Query("select bloodPressure from BloodPressure bloodPressure where bloodPressure.user.login = ?#{principal.username}")
-    List<BloodPressure> findByUserIsCurrentUser();
+    Page<BloodPressure> findByUserIsCurrentUser(Pageable pageable);
 
     default Optional<BloodPressure> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
@@ -40,4 +41,12 @@ public interface BloodPressureRepository extends JpaRepository<BloodPressure, Lo
 
     @Query("select bloodPressure from BloodPressure bloodPressure left join fetch bloodPressure.user where bloodPressure.id =:id")
     Optional<BloodPressure> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<BloodPressure> findAllByTimestampBetweenAndUserLoginOrderByTimestampAsc(
+        ZonedDateTime firstDate,
+        ZonedDateTime secondDate,
+        String login
+    );
+
+    Page<BloodPressure> findAllByOrderByTimestampDesc(Pageable pageable);
 }

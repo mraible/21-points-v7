@@ -12,12 +12,12 @@
       <div>
         <jhi-alert-error></jhi-alert-error>
 
-        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+        <div class="mb-3" *ngIf="editForm.controls.id.value !== null">
           <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
           <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
         </div>
 
-        <div class="row mb-3">
+        <div class="mb-3">
           <label class="form-label" jhiTranslate="twentyOnePointsApp.preferences.weeklyGoal" for="field_weeklyGoal">Weekly Goal</label>
           <input
             type="number"
@@ -61,10 +61,10 @@
           </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="mb-3">
           <label class="form-label" jhiTranslate="twentyOnePointsApp.preferences.weightUnits" for="field_weightUnits">Weight Units</label>
           <select class="form-control" name="weightUnits" formControlName="weightUnits" id="field_weightUnits" data-cy="weightUnits">
-            <option [ngValue]="null">{{ 'twentyOnePointsApp.Units.null' | translate }}</option>
+            <option [ngValue]="null">{{ 'twentyOnePointsApp.Units.select' | translate }}</option>
             <option *ngFor="let units of unitsValues" [value]="units">{{ 'twentyOnePointsApp.Units.' + units | translate }}</option>
           </select>
           <div *ngIf="editForm.get('weightUnits')!.invalid && (editForm.get('weightUnits')!.dirty || editForm.get('weightUnits')!.touched)">
@@ -78,7 +78,7 @@
           </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="mb-3" *jhiHasAnyAuthority="'ROLE_ADMIN'">
           <label class="form-label" jhiTranslate="twentyOnePointsApp.preferences.user" for="field_user">User</label>
           <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
             <option [ngValue]="null"></option>
@@ -88,7 +88,13 @@
       </div>
 
       <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+        <button
+          type="button"
+          id="cancel-save"
+          data-cy="entityCreateCancelButton"
+          class="btn btn-outline-secondary"
+          (click)="previousState()"
+        >
           <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
         </button>
 
