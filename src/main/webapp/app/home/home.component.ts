@@ -140,6 +140,10 @@ export class HomeComponent implements OnInit, OnDestroy {
               min: Math.min(...lowerValues) - 10,
             },
           };
+          this.bpOptions.interaction = {
+            mode: 'index',
+            intersect: false,
+          };
         } else {
           this.bpReadings.readings = [];
         }
