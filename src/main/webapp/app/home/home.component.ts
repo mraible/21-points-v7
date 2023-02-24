@@ -140,6 +140,11 @@ export class HomeComponent implements OnInit, OnDestroy {
               min: Math.min(...lowerValues) - 10,
             },
           };
+          // show both systolic and diastolic on hover
+          this.bpOptions.interaction = {
+            mode: 'index',
+            intersect: false,
+          };
         } else {
           this.bpReadings.readings = [];
         }
