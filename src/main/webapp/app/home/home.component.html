@@ -65,14 +65,14 @@
           <div class="col-md-11 col-xs-12">
             <canvas
               baseChart
-              *ngIf="bpReadings?.readings && bpReadings?.readings?.length"
+              *ngIf="bpReadings && bpReadings.readings.length"
               height="125"
               [type]="'line'"
               [data]="bpData"
               [options]="bpOptions"
             >
             </canvas>
-            <ngb-alert [dismissible]="false" [hidden]="bpReadings.readings && bpReadings.readings.length">
+            <ngb-alert [dismissible]="false" [hidden]="bpReadings && bpReadings.readings.length">
               <span jhiTranslate="home.bloodPressure.noReadings"> No blood pressure readings found. </span>
             </ngb-alert>
           </div>
@@ -91,14 +91,14 @@
           <div class="col-md-11 col-xs-12">
             <canvas
               baseChart
-              *ngIf="weights.weighIns && weights.weighIns.length"
+              *ngIf="weights && weights.weighIns.length"
               height="125"
               [type]="'line'"
               [data]="weightData"
               [options]="weightOptions"
             >
             </canvas>
-            <ngb-alert [dismissible]="false" [hidden]="weights.weighIns && weights.weighIns.length">
+            <ngb-alert [dismissible]="false" [hidden]="weights && weights.weighIns.length">
               <span jhiTranslate="home.weight.noWeighIns"> No weigh-ins found. </span>
             </ngb-alert>
           </div>
