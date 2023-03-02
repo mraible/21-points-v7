@@ -285,10 +285,7 @@ public class BloodPressureResource {
         if (SecurityUtils.isAuthenticated() && !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             queryBuilder = queryBuilder.filter(matchQuery("user.login", SecurityUtils.getCurrentUserLogin().orElse("")));
         }
-        // todo: figure out how to use queryBuilder in search()
-        // SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        // sourceBuilder.query(queryBuilder);
-        Page<BloodPressure> page = bloodPressureSearchRepository.search(query, pageable);
+        Page<BloodPressure> page = bloodPressureSearchRepository.search(queryBuilder, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

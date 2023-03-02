@@ -274,8 +274,7 @@ public class PreferencesResource {
         if (SecurityUtils.isAuthenticated() && !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             queryBuilder = queryBuilder.filter(matchQuery("user.login", SecurityUtils.getCurrentUserLogin().orElse("")));
         }
-        // todo: figure out how to use queryBuilder in search()
-        return StreamSupport.stream(preferencesSearchRepository.search(query).spliterator(), false).collect(Collectors.toList());
+        return StreamSupport.stream(preferencesSearchRepository.search(queryBuilder).spliterator(), false).collect(Collectors.toList());
     }
 
     /**
