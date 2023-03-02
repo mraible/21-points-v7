@@ -286,8 +286,7 @@ public class PointsResource {
         if (SecurityUtils.isAuthenticated() && !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             queryBuilder = queryBuilder.filter(matchQuery("user.login", SecurityUtils.getCurrentUserLogin().orElse("")));
         }
-        // todo: figure out how to use queryBuilder in search()
-        Page<Points> page = pointsSearchRepository.search(query, pageable);
+        Page<Points> page = pointsSearchRepository.search(queryBuilder, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

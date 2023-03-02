@@ -283,8 +283,7 @@ public class WeightResource {
         if (SecurityUtils.isAuthenticated() && !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             queryBuilder = queryBuilder.filter(matchQuery("user.login", SecurityUtils.getCurrentUserLogin().orElse("")));
         }
-        // todo: figure out how to use queryBuilder in search()
-        Page<Weight> page = weightSearchRepository.search(query, pageable);
+        Page<Weight> page = weightSearchRepository.search(queryBuilder, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
