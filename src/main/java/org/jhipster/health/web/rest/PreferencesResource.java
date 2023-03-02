@@ -17,7 +17,6 @@ import javax.validation.constraints.NotNull;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.jhipster.health.domain.Preferences;
-import org.jhipster.health.domain.User;
 import org.jhipster.health.repository.PreferencesRepository;
 import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.search.PreferencesSearchRepository;
